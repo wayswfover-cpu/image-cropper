@@ -192,93 +192,6 @@ header{text-align:center;padding:20px 0 32px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .codes-error{padding:40px;text-align:center;color:var(--magenta);font-size:.85rem;letter-spacing:1px}
 
-/* CLICKER */
-.cl-badge{font-family:var(--font-head);font-size:.65rem;letter-spacing:2px;
-  color:var(--yellow);border:1px solid var(--yellow);padding:2px 10px;border-radius:2px;box-shadow:var(--glow-y)}
-.cl-badge span{font-weight:900}
-.cl-core-name{font-family:var(--font-head);font-size:.7rem;letter-spacing:2px;color:var(--cyan)}
-.clicker-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
-@media(max-width:720px){.clicker-layout{grid-template-columns:1fr}}
-.clicker-left{display:flex;flex-direction:column;gap:16px;align-items:center}
-.clicker-level-bar{width:100%;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:14px 18px}
-.clicker-level-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
-.cl-progress-wrap{display:flex;align-items:center;gap:10px}
-.cl-progress-track{flex:1;height:6px;background:var(--s2);border-radius:3px;overflow:hidden}
-.cl-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--magenta));border-radius:3px;transition:width .15s;box-shadow:var(--glow-c)}
-.cl-progress-text{font-size:.7rem;color:var(--muted);white-space:nowrap;letter-spacing:1px}
-.clicker-core-wrap{position:relative;width:180px;height:180px;display:flex;align-items:center;justify-content:center;flex-direction:column}
-.clicker-core-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(0,229,255,.2);animation:spin-slow 8s linear infinite}
-.cl-ring2{inset:-16px;animation-duration:12s;animation-direction:reverse;border-color:rgba(255,0,144,.15)}
-@keyframes spin-slow{to{transform:rotate(360deg)}}
-.clicker-core{width:130px;height:130px;border-radius:50%;cursor:pointer;position:relative;
-  background:radial-gradient(circle at 35% 35%,var(--s3),var(--s1));
-  border:2px solid var(--cyan);box-shadow:var(--glow-c);
-  display:flex;align-items:center;justify-content:center;
-  transition:transform .1s,box-shadow .2s;user-select:none}
-.clicker-core:hover{box-shadow:0 0 20px var(--cyan),0 0 50px rgba(0,229,255,.4)}
-.clicker-core:active{transform:scale(.93)}
-.clicker-core-inner{display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
-.cl-core-icon{color:var(--cyan);display:flex;align-items:center;justify-content:center}
-.cl-level-tag{font-family:var(--font-head);font-size:.6rem;letter-spacing:2px;
-  color:var(--yellow);background:rgba(0,0,0,.4);padding:2px 8px;border-radius:2px;border:1px solid var(--yellow)}
-.clicker-particle-container{position:absolute;inset:0;pointer-events:none;overflow:visible}
-.cl-particle{position:absolute;left:50%;top:50%;font-family:var(--font-head);font-size:.75rem;font-weight:700;
-  color:var(--cyan);text-shadow:var(--glow-c);pointer-events:none;animation:clParticle .9s ease-out forwards}
-@keyframes clParticle{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-120px) scale(.6)}}
-.clicker-stats{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;
-  background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:14px 20px;width:100%}
-.cl-stat{text-align:center;min-width:80px}
-.cl-stat-val{font-family:var(--font-head);font-size:1.3rem;font-weight:700;color:var(--cyan);text-shadow:var(--glow-c)}
-.cl-stat-key{font-size:.65rem;letter-spacing:1.5px;color:var(--muted);margin-top:2px}
-.cl-upgrade{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--border);
-  border-radius:6px;padding:12px;margin-bottom:10px;transition:border-color .2s}
-.cl-upgrade:hover{border-color:var(--yellow)}
-.cl-upg-icon{color:var(--yellow);flex-shrink:0;display:flex}
-.cl-upg-info{flex:1;min-width:0}
-.cl-upg-name{font-family:var(--font-head);font-size:.68rem;letter-spacing:1.5px;color:var(--text)}
-.cl-upg-desc{font-size:.75rem;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cl-upgrade-level{border-color:rgba(255,230,0,.25);background:rgba(255,230,0,.04)}
-.cl-upgrade-level:hover{border-color:var(--yellow)}
-.cl-upgrades-list{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
-.cl-upg-card{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--border);
-  border-radius:6px;padding:10px 12px;transition:border-color .2s;cursor:pointer}
-.cl-upg-card:hover{border-color:var(--cyan)}
-.cl-upg-card.disabled{border-color:var(--border);opacity:.4;cursor:not-allowed}
-.cl-upg-card-icon{font-size:1.2rem;flex-shrink:0;width:28px;text-align:center}
-.cl-upg-card-info{flex:1;min-width:0}
-.cl-upg-card-name{font-family:var(--font-head);font-size:.65rem;letter-spacing:1px;color:var(--text)}
-.cl-upg-card-desc{font-size:.72rem;color:var(--muted);margin-top:2px}
-.cl-upg-card-owned{font-size:.65rem;color:var(--cyan);margin-top:3px}
-.cl-btn-buy{background:transparent;border:1px solid var(--green);color:var(--green);
-  box-shadow:0 0 8px rgba(0,255,159,.2);padding:6px 12px;border-radius:4px;
-  font-family:var(--font-head);font-size:.62rem;letter-spacing:1px;cursor:pointer;transition:all .2s;flex-shrink:0}
-.cl-btn-buy:hover{background:rgba(0,255,159,.1);box-shadow:0 0 14px rgba(0,255,159,.4)}
-.cl-btn-buy:disabled{opacity:.3;cursor:not-allowed}
-.neon-sep{height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.3;margin:20px 0}
-.flex-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.mt-16{margin-top:16px}
-
-/* LEVEL OVERLAY */
-#cl-level-overlay{display:none;position:fixed;inset:0;z-index:200;
-  background:rgba(0,0,0,.9);backdrop-filter:blur(8px);
-  align-items:center;justify-content:center;flex-direction:column;gap:16px}
-#cl-level-overlay.open{display:flex;animation:clFlashBg .8s ease}
-@keyframes clFlashBg{0%{opacity:0}20%{opacity:1}80%{opacity:1}100%{opacity:0}}
-.cl-level-pop{text-align:center;animation:clLevelPop 1.2s cubic-bezier(0.34,1.56,0.64,1)}
-@keyframes clLevelPop{0%{transform:scale(0) rotate(-10deg);opacity:0}50%{transform:scale(1.15) rotate(2deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
-.cl-level-pop-title{font-family:var(--font-head);font-size:.85rem;letter-spacing:4px;color:var(--yellow);margin-bottom:8px}
-.cl-level-pop-number{font-family:var(--font-head);font-size:4rem;font-weight:900;
-  color:var(--cyan);text-shadow:0 0 30px var(--cyan),0 0 80px rgba(0,229,255,.5);line-height:1}
-.cl-level-pop-name{font-family:var(--font-head);font-size:1.3rem;letter-spacing:3px;
-  color:var(--magenta);margin-top:10px;text-shadow:var(--glow-m)}
-.cl-level-pop-glow{position:absolute;width:300px;height:300px;border-radius:50%;
-  background:radial-gradient(circle,rgba(0,229,255,.2) 0%,transparent 70%);
-  animation:clPulse 1.2s ease-in-out infinite alternate;pointer-events:none}
-@keyframes clPulse{from{transform:scale(.9);opacity:.5}to{transform:scale(1.3);opacity:1}}
-.cl-level-ok{font-family:var(--font-head);font-size:.72rem;letter-spacing:2px;
-  color:var(--muted);animation:clFadeIn 1s .8s ease both}
-@keyframes clFadeIn{from{opacity:0}to{opacity:1}}
-
 /* PREVIEW MODAL */
 #preview-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:100;
   align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
@@ -325,10 +238,10 @@ header{text-align:center;padding:20px 0 32px}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
       NTE//CODES
     </button>
-    <button class="tab-btn" data-tab="clicker">
+    <a class="tab-btn" href="clicker.html" style="font-family:var(--font-head);font-size:.72rem;font-weight:600;letter-spacing:2px;padding:10px 22px;border:none;background:transparent;color:var(--muted);cursor:pointer;border-radius:4px;transition:all .25s;display:flex;align-items:center;gap:8px;text-decoration:none" onmouseover="this.style.color='var(--text)';this.style.background='var(--s2)'" onmouseout="this.style.color='';this.style.background=''">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
       CLICKER
-    </button>
+    </a>
   </nav>
 
   <!-- ══ TAB: CROP ══ -->
@@ -437,85 +350,10 @@ header{text-align:center;padding:20px 0 32px}
       <div id="codes-grid" class="codes-grid" style="display:none"></div>
     </div>
   </div>
-
-  <!-- ══ TAB: CLICKER ══ -->
-  <div class="tab-panel" id="tab-clicker">
-    <div class="clicker-layout">
-
-      <!-- LEFT: core + stats -->
-      <div class="clicker-left">
-        <div class="clicker-level-bar">
-          <div class="clicker-level-label">
-            <span class="cl-badge">УРОВЕНЬ <span id="cl-level">1</span></span>
-            <span class="cl-core-name" id="cl-core-name">ГЛИТЧ-ЯДРО</span>
-          </div>
-          <div class="cl-progress-wrap">
-            <div class="cl-progress-track"><div class="cl-progress-fill" id="cl-progress-fill"></div></div>
-            <div class="cl-progress-text" id="cl-progress-text">0 / 50</div>
-          </div>
-        </div>
-
-        <div class="clicker-core-wrap">
-          <div class="clicker-core-ring"></div>
-          <div class="clicker-core-ring cl-ring2"></div>
-          <div class="clicker-core" id="cl-core">
-            <img id="cl-core-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;position:absolute;top:0;left:0"/>
-            <div class="cl-level-tag" id="cl-level-tag">LVL 1</div>
-          </div>
-          <div class="clicker-particle-container" id="cl-particles"></div>
-        </div>
-
-        <div class="clicker-stats">
-          <div class="cl-stat"><div class="cl-stat-val" id="cl-total-clicks">0</div><div class="cl-stat-key">КЛИКОВ ВСЕГО</div></div>
-          <div class="cl-stat"><div class="cl-stat-val" id="cl-cps">0</div><div class="cl-stat-key">В СЕКУНДУ</div></div>
-          <div class="cl-stat"><div class="cl-stat-val" id="cl-cpc">1</div><div class="cl-stat-key">ЗА КЛИК</div></div>
-        </div>
-      </div>
-
-      <!-- RIGHT: upgrades -->
-      <div class="clicker-right">
-        <div class="card" style="padding:18px">
-          <div class="card-title">// ПРОКАЧКА</div>
-          <div class="cl-upgrade cl-upgrade-level" id="cl-upg-level">
-            <div class="cl-upg-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
-            </div>
-            <div class="cl-upg-info">
-              <div class="cl-upg-name" id="cl-upg-level-name">СЛЕДУЮЩИЙ УРОВЕНЬ</div>
-              <div class="cl-upg-desc" id="cl-upg-level-desc">ГЛИТЧ-ЯДРО → НЕЙРО-ЯДРО</div>
-            </div>
-            <button class="btn btn-yellow btn-sm" id="cl-btn-level"><span id="cl-upg-level-cost">50</span> КЛИКОВ</button>
-          </div>
-          <div class="neon-sep"></div>
-          <div class="cl-upgrades-list" id="cl-upgrades-list"></div>
-          <div class="neon-sep"></div>
-          <button class="btn btn-magenta btn-sm" id="cl-btn-reset" style="width:100%;justify-content:center">СБРОСИТЬ ПРОГРЕСС</button>
-        </div>
-        <div class="card" style="padding:16px;margin-top:14px">
-          <div class="card-title" style="font-size:.7rem">// АВТОКЛИКЕРЫ</div>
-          <div id="cl-auto-count" style="color:var(--cyan);font-size:.78rem">Активных: 0</div>
-          <div id="cl-auto-details" style="margin-top:6px;font-size:.78rem;color:var(--muted)">Нет автокликеров</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
 </div><!-- /#app -->
 
 <!-- Copied toast -->
 <div id="copied-toast" class="copied-toast" style="display:none">// СКОПИРОВАНО //</div>
-
-<!-- Level up overlay -->
-<div id="cl-level-overlay">
-  <div class="cl-level-pop">
-    <div class="cl-level-pop-glow"></div>
-    <div class="cl-level-pop-title">// НОВЫЙ УРОВЕНЬ //</div>
-    <div class="cl-level-pop-number" id="cl-overlay-level">2</div>
-    <div class="cl-level-pop-name" id="cl-overlay-name">НЕЙРО-ЯДРО</div>
-  </div>
-  <div class="cl-level-ok">[ нажмите куда угодно, чтобы продолжить ]</div>
-</div>
 
 <!-- Crop preview modal -->
 <div id="preview-modal">
@@ -544,7 +382,6 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
     if(btn.dataset.tab==='codes')loadCodes();
     if(btn.dataset.tab==='roulette')drawWheel();
-    if(btn.dataset.tab==='clicker')initClicker();
   });
 });
 
@@ -671,38 +508,7 @@ async function loadCodes(force){if(codesLoaded&&!force)return;codesLoading.style
 function renderCodes(data){codesLoading.style.display='none';const src=data.source||'';codesSource.textContent='SOURCE: '+(src==='eurogamer.net (fallback)'?'BUILT-IN FALLBACK':src.replace('https://www.','').split('/')[0].toUpperCase());const d=new Date(data.updatedAt);codesUpdated.textContent='UPDATED: '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});codesGrid.innerHTML='';if(!data.codes||data.codes.length===0){codesGrid.innerHTML='<div class="codes-error">Коды не найдены</div>';}else{data.codes.forEach(c=>{const card=document.createElement('div');card.className='code-card'+(c.isNew?' is-new':'');card.innerHTML='<div class="code-card-code">'+escHtml(c.code)+'</div><div class="code-card-reward">'+escHtml(c.reward)+'</div><div class="code-card-actions"><button class="btn btn-cyan btn-sm copy-btn" data-code="'+escHtml(c.code)+'"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>КОПИРОВАТЬ</button></div>';codesGrid.appendChild(card);});}codesGrid.style.display='grid';codesGrid.addEventListener('click',e=>{const btn=e.target.closest('.copy-btn');if(!btn)return;navigator.clipboard.writeText(btn.dataset.code).then(()=>showToast('// СКОПИРОВАНО: '+btn.dataset.code+' //')).catch(()=>{});});}
 btnRefresh.addEventListener('click',()=>{codesLoaded=false;loadCodes(true);});
 
-/* ══ CLICKER ══ */
-const LEVELS=[
-  {level:1,name:'ГЛИТЧ-ЯДРО',clicks:0,cpc:1,icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>'},
-  {level:2,name:'НЕЙРО-ЯДРО',clicks:50,cpc:2,icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>'},
-  {level:3,name:'КВАНТ-ЯДРО',clicks:200,cpc:5,icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4"/></svg>'},
-  {level:4,name:'СИНГУЛЯРНОСТЬ',clicks:600,cpc:12,icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg>'},
-  {level:5,name:'ОСОБЫЙ УРОВЕНЬ',clicks:1800,cpc:30,icon:'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'},
-];
-const UPG=[
-  {id:'clickPower',name:'СИЛА КЛИКА',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',baseCost:15,costMult:1.6,effectDesc:'+1 за клик',max:99},
-  {id:'autoClick',name:'АВТОКЛИКЕР',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.24 16.24l2.83 2.83M1 12h4M19 12h4"/></svg>',baseCost:50,costMult:1.8,effectDesc:'+1 в сек',max:50},
-  {id:'crit',name:'КРИТ. УДАР',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',baseCost:200,costMult:2.2,effectDesc:'x2 шанс 10%',max:20},
-  {id:'multi',name:'МУЛЬТИКЛИК',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',baseCost:1000,costMult:2.5,effectDesc:'+2 за клик',max:20},
-];
-let cl={};
-function initClicker(){if(cl._init)return;cl._init=true;cl.state={level:1,clicks:0,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};loadCS();cl.elLevel=document.getElementById('cl-level');cl.elCoreName=document.getElementById('cl-core-name');cl.elProgress=document.getElementById('cl-progress-fill');cl.elProgText=document.getElementById('cl-progress-text');cl.elCore=document.getElementById('cl-core');cl.elLevelTag=document.getElementById('cl-level-tag');cl.elTotalClicks=document.getElementById('cl-total-clicks');cl.elCps=document.getElementById('cl-cps');cl.elCpc=document.getElementById('cl-cpc');cl.elUpgList=document.getElementById('cl-upgrades-list');cl.elBtnLevel=document.getElementById('cl-btn-level');cl.elUpgLvlName=document.getElementById('cl-upg-level-name');cl.elUpgLvlDesc=document.getElementById('cl-upg-level-desc');cl.elUpgLvlCost=document.getElementById('cl-upg-level-cost');cl.elAutoCount=document.getElementById('cl-auto-count');cl.elAutoDetails=document.getElementById('cl-auto-details');cl.elParticles=document.getElementById('cl-particles');cl.elOverlay=document.getElementById('cl-level-overlay');cl.elOverlayLvl=document.getElementById('cl-overlay-level');cl.elOverlayName=document.getElementById('cl-overlay-name');cl.elBtnReset=document.getElementById('cl-btn-reset');cl.elCoreImg=document.getElementById('cl-core-img');cl.elCore.addEventListener('click',doClick);cl.elCore.addEventListener('touchstart',e=>{e.preventDefault();doClick();},{passive:false});cl.elBtnLevel.addEventListener('click',tryLvlUp);cl.elBtnReset.addEventListener('click',()=>{if(!confirm('Сбросить прогресс?'))return;localStorage.removeItem('cl_state');cl.state={level:1,clicks:0,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};renderCl();saveCS();});cl.elOverlay.addEventListener('click',()=>cl.elOverlay.classList.remove('open'));setInterval(autoTick,1000);setInterval(saveCS,5000);renderCl();drawCoreImg(cl.state.level);}
-function getCPC(){return LEVELS[cl.state.level-1].cpc+cl.state.clickPower+cl.state.multi*2;}
-function getCPS(){return cl.state.autoClick;}
-function doClick(){const cpc=getCPC();const isCrit=cl.state.crit>0&&Math.random()<cl.state.crit*0.1;const g=isCrit?cpc*2:cpc;cl.state.clicks+=g;cl.state.totalClicks+=g;spawnP('+'+g+(isCrit?' CRIT':''));checkLvl();updUI();}
-function checkLvl(){const n=cl.state.level+1;if(n>LEVELS.length)return;if(cl.state.totalClicks>=LEVELS[n-1].clicks){cl.state.level=n;showOv(n,LEVELS[n-1].name);renderCl();}}
-function tryLvlUp(){const n=LEVELS[cl.state.level];if(!n)return;if(cl.state.totalClicks>=n.clicks){cl.state.level=n.level;showOv(n.level,n.name);renderCl();}}
-function showOv(l,n){cl.elOverlayLvl.textContent=l;cl.elOverlayName.textContent=n;cl.elOverlay.classList.add('open');cl.elLevelTag.textContent='LVL '+l;drawCoreImg(l);}
-function spawnP(t){const e=document.createElement('div');e.className='cl-particle';e.style.left='calc(50%+'+((Math.random()-.5)*60)+'px)';e.style.top='45%';e.textContent=t;cl.elParticles.appendChild(e);setTimeout(()=>e.remove(),900);}
-function autoTick(){const s=getCPS();if(s<=0)return;cl.state.clicks+=s;cl.state.totalClicks+=s;checkLvl();updUI();}
-function fmt(n){n=Math.floor(n);return n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n+'';}
-function drawCoreImg(lvl){const exts={1:'png',2:'jpg',3:'png',4:'png',5:'jpg'};const ext=exts[lvl]||'png';cl.elCoreImg.src='images/'+lvl+'.'+ext;cl.elCoreImg.style.display='block';}
-function renderCl(){const i=cl.state.level-1;const l=LEVELS[i];const n=LEVELS[cl.state.level];cl.elLevel.textContent=cl.state.level;cl.elCoreName.textContent=l.name;cl.elLevelTag.textContent='LVL '+cl.state.level;drawCoreImg(cl.state.level);const prev=i>0?LEVELS[i-1].clicks:0;const need=l.clicks-prev;const have=cl.state.totalClicks-prev;const pct=Math.min(100,(have/need)*100);cl.elProgress.style.width=pct+'%';cl.elProgText.textContent=have+' / '+need;if(n){cl.elUpgLvlName.textContent='СЛЕДУЮЩИЙ УРОВЕНЬ';cl.elUpgLvlDesc.textContent=l.name+' -> '+n.name;cl.elUpgLvlCost.textContent=n.clicks;cl.elBtnLevel.disabled=cl.state.totalClicks<n.clicks;}else{cl.elUpgLvlName.textContent='МАКСИМУМ ДОСТИГНУТ';cl.elUpgLvlDesc.textContent='Все уровни пройдены!';cl.elUpgLvlCost.textContent='MAX';cl.elBtnLevel.disabled=true;}renderUpg();updUI();}
-function updUI(){cl.elTotalClicks.textContent=fmt(cl.state.totalClicks);cl.elCps.textContent=fmt(getCPS());cl.elCpc.textContent=fmt(getCPC());const i=cl.state.level-1;const l=LEVELS[i];const prev=i>0?LEVELS[i-1].clicks:0;const need=l.clicks-prev;const have=cl.state.totalClicks-prev;const pct=Math.min(100,(have/need)*100);cl.elProgress.style.width=pct+'%';cl.elProgText.textContent=have+' / '+need;const ac=cl.state.autoClick;cl.elAutoCount.textContent='Активных: '+ac;cl.elAutoDetails.textContent=ac>0?'+'+ac+' клик/сек':'Нет автокликеров';}
-function renderUpg(){cl.elUpgList.innerHTML='';UPG.forEach(u=>{const owned=cl.state[u.id]||0;const cost=Math.floor(u.baseCost*Math.pow(u.costMult,owned));const can=cl.state.clicks>=cost&&owned<u.max;const card=document.createElement('div');card.className='cl-upg-card'+(owned>=u.max?' disabled':'');card.innerHTML='<div class="cl-upg-card-icon">'+u.icon+'</div><div class="cl-upg-card-info"><div class="cl-upg-card-name">'+u.name+'</div><div class="cl-upg-card-desc">'+u.effectDesc+'</div><div class="cl-upg-card-owned">КУПЛЕНО: '+owned+(u.max<99?' / '+u.max:'')+'</div></div><button class="cl-btn-buy" data-upg="'+u.id+'" '+((!can||owned>=u.max)?'disabled':'')+'>'+(owned>=u.max?'MAX':fmt(cost))+'</button>';cl.elUpgList.appendChild(card);});cl.elUpgList.onclick=function(e){const btn=e.target.closest('.cl-btn-buy');if(!btn||btn.disabled)return;buyUpg(btn.dataset.upg);};}
-function buyUpg(id){const u=UPG.find(x=>x.id===id);const owned=cl.state[id]||0;const cost=Math.floor(u.baseCost*Math.pow(u.costMult,owned));if(cl.state.clicks<cost||owned>=u.max)return;cl.state.clicks-=cost;cl.state[id]++;renderUpg();updUI();}
-function saveCS(){try{localStorage.setItem('cl_state',JSON.stringify({level:cl.state.level,totalClicks:cl.state.totalClicks,clickPower:cl.state.clickPower,autoClick:cl.state.autoClick,crit:cl.state.crit,multi:cl.state.multi}));}catch(_){}}
-function loadCS(){try{const s=JSON.parse(localStorage.getItem('cl_state')||'null');if(!s)return;cl.state.level=s.level||1;cl.state.totalClicks=s.totalClicks||0;cl.state.clickPower=s.clickPower||0;cl.state.autoClick=s.autoClick||0;cl.state.crit=s.crit||0;cl.state.multi=s.multi||0;}catch(_){}}
+function fmt(n){n=Math.floor(n||0);return n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n)}
 
 /* ══ UTILS ══ */
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

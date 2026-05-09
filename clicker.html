@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CYBER//HUB — CLICKER</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050509;--s1:#0a0a18;--s2:#0f0f22;--s3:#14142e;--border:#1c1c40;
+  --cyan:#00e5ff;--magenta:#ff0090;--yellow:#ffe600;--green:#00ff9f;
+  --text:#c0d8f0;--muted:#3a4a6a;
+  --font-head:'Orbitron',monospace;--font-mono:'Share Tech Mono',monospace;
+  --glow-c:0 0 8px var(--cyan),0 0 20px rgba(0,229,255,.3);
+  --glow-m:0 0 8px var(--magenta),0 0 20px rgba(255,0,144,.3);
+  --glow-y:0 0 8px var(--yellow),0 0 20px rgba(255,230,0,.3);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-mono);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;position:relative}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:40px 40px}
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px)}
+.corner{position:fixed;width:60px;height:60px;pointer-events:none;z-index:2}
+.corner-tl{top:12px;left:12px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);box-shadow:var(--glow-c)}
+.corner-tr{top:12px;right:12px;border-top:2px solid var(--magenta);border-right:2px solid var(--magenta);box-shadow:var(--glow-m)}
+.corner-bl{bottom:12px;left:12px;border-bottom:2px solid var(--magenta);border-left:2px solid var(--magenta);box-shadow:var(--glow-m)}
+.corner-br{bottom:12px;right:12px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);box-shadow:var(--glow-c)}
+
+#page{position:relative;z-index:3;max-width:960px;margin:0 auto;padding:24px 16px 80px}
+
+header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-bottom:1px solid var(--border);margin-bottom:28px}
+.back-btn{font-family:var(--font-head);font-size:.65rem;letter-spacing:2px;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:8px 16px;border-radius:4px;transition:all .2s;flex-shrink:0}
+.back-btn:hover{color:var(--cyan);border-color:var(--cyan);box-shadow:var(--glow-c)}
+.header-title{font-family:var(--font-head);font-size:clamp(1.2rem,4vw,2rem);font-weight:700;color:var(--cyan);text-shadow:0 0 20px var(--cyan);letter-spacing:3px;flex:1;text-align:center}
+.header-right{flex-shrink:0;width:80px}
+
+.clicker-layout{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+@media(max-width:680px){.clicker-layout{grid-template-columns:1fr}}
+.clicker-left{display:flex;flex-direction:column;gap:16px;align-items:center}
+
+.clicker-level-bar{width:100%;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:14px 18px}
+.clicker-level-label{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.cl-badge{font-family:var(--font-head);font-size:.65rem;letter-spacing:2px;color:var(--yellow);border:1px solid var(--yellow);padding:2px 10px;border-radius:2px;box-shadow:var(--glow-y);white-space:nowrap}
+.cl-core-name{font-family:var(--font-head);font-size:.7rem;letter-spacing:2px;color:var(--cyan)}
+.cl-progress-wrap{display:flex;align-items:center;gap:10px}
+.cl-progress-track{flex:1;height:6px;background:var(--s2);border-radius:3px;overflow:hidden}
+.cl-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--magenta));border-radius:3px;transition:width .15s;box-shadow:var(--glow-c)}
+.cl-progress-text{font-size:.7rem;color:var(--muted);white-space:nowrap;letter-spacing:1px}
+
+.clicker-core-wrap{position:relative;width:180px;height:180px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.clicker-core-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(0,229,255,.2);animation:spin-slow 8s linear infinite}
+.cl-ring2{inset:-16px;animation-duration:12s;animation-direction:reverse;border-color:rgba(255,0,144,.15)}
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+.clicker-core{width:130px;height:130px;border-radius:50%;cursor:pointer;position:relative;background:radial-gradient(circle at 35% 35%,var(--s3),var(--s1));border:2px solid var(--cyan);box-shadow:var(--glow-c);display:flex;align-items:center;justify-content:center;transition:transform .1s,box-shadow .2s;user-select:none;overflow:hidden}
+.clicker-core:hover{box-shadow:0 0 20px var(--cyan),0 0 50px rgba(0,229,255,.4)}
+.clicker-core:active{transform:scale(.93)}
+.cl-core-img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:none}
+.cl-level-tag{font-family:var(--font-head);font-size:.6rem;letter-spacing:2px;color:var(--yellow);background:rgba(0,0,0,.4);padding:2px 8px;border-radius:2px;border:1px solid var(--yellow);position:absolute;bottom:4px;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none}
+.clicker-particle-container{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.cl-particle{position:absolute;left:50%;top:50%;font-family:var(--font-head);font-size:.75rem;font-weight:700;color:var(--cyan);text-shadow:var(--glow-c);pointer-events:none;animation:clParticle .9s ease-out forwards}
+@keyframes clParticle{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-120px) scale(.6)}}
+
+.clicker-stats{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:14px 20px;width:100%}
+.cl-stat{text-align:center;min-width:80px}
+.cl-stat-val{font-family:var(--font-head);font-size:1.3rem;font-weight:700;color:var(--cyan);text-shadow:var(--glow-c)}
+.cl-stat-key{font-size:.65rem;letter-spacing:1.5px;color:var(--muted);margin-top:2px}
+
+.card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.6}
+.card-title{font-family:var(--font-head);font-size:.78rem;letter-spacing:3px;color:var(--cyan);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'//';color:var(--magenta);opacity:.7}
+.neon-sep{height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.3;margin:16px 0}
+.btn{font-family:var(--font-head);font-size:.72rem;font-weight:600;letter-spacing:1.5px;padding:10px 22px;border:none;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s;position:relative;overflow:hidden}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,.08) 50%,transparent 60%);transform:translateX(-100%);transition:transform .4s}
+.btn:hover::before{transform:translateX(100%)}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.3;cursor:default}
+.btn-cyan{background:transparent;color:var(--cyan);border:1px solid var(--cyan);box-shadow:var(--glow-c)}
+.btn-cyan:not(:disabled):hover{background:rgba(0,229,255,.1)}
+.btn-magenta{background:transparent;color:var(--magenta);border:1px solid var(--magenta);box-shadow:var(--glow-m)}
+.btn-yellow{background:transparent;color:var(--yellow);border:1px solid var(--yellow);box-shadow:var(--glow-y)}
+.btn-yellow:not(:disabled):hover{background:rgba(255,230,0,.1)}
+.btn-green{background:transparent;color:var(--green);border:1px solid var(--green);box-shadow:0 0 8px var(--green),0 0 20px rgba(0,255,159,.3)}
+.btn-green:not(:disabled):hover{background:rgba(0,255,159,.1)}
+.btn-sm{padding:6px 14px;font-size:.65rem;letter-spacing:1px}
+.btn-red{background:transparent;color:#ff4444;border:1px solid #ff4444;box-shadow:0 0 8px rgba(255,68,68,.3)}
+.btn-red:not(:disabled):hover{background:rgba(255,68,68,.1)}
+
+.cl-upgrade{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;transition:border-color .2s}
+.cl-upgrade:hover{border-color:var(--yellow)}
+.cl-upg-icon{color:var(--yellow);flex-shrink:0}
+.cl-upg-info{flex:1;min-width:0}
+.cl-upg-name{font-family:var(--font-head);font-size:.68rem;letter-spacing:1.5px;color:var(--text)}
+.cl-upg-desc{font-size:.75rem;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-upgrades-list{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto}
+.cl-upg-card{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;transition:border-color .2s;cursor:pointer}
+.cl-upg-card:hover{border-color:var(--cyan)}
+.cl-upg-card.disabled{border-color:var(--border);opacity:.4;cursor:not-allowed}
+.cl-upg-card-icon{font-size:1.2rem;flex-shrink:0;width:28px;text-align:center}
+.cl-upg-card-info{flex:1;min-width:0}
+.cl-upg-card-name{font-family:var(--font-head);font-size:.65rem;letter-spacing:1px;color:var(--text)}
+.cl-upg-card-desc{font-size:.72rem;color:var(--muted);margin-top:2px}
+.cl-upg-card-owned{font-size:.65rem;color:var(--cyan);margin-top:3px}
+.cl-btn-buy{background:transparent;border:1px solid var(--green);color:var(--green);box-shadow:0 0 8px rgba(0,255,159,.2);padding:6px 12px;border-radius:4px;font-family:var(--font-head);font-size:.62rem;letter-spacing:1px;cursor:pointer;transition:all .2s;flex-shrink:0}
+.cl-btn-buy:hover{background:rgba(0,255,159,.1);box-shadow:0 0 14px rgba(0,255,159,.4)}
+.cl-btn-buy:disabled{opacity:.3;cursor:not-allowed}
+.auto-info{font-size:.78rem;color:var(--muted);margin-top:6px}
+
+/* LEVEL UP OVERLAY */
+#level-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.9);backdrop-filter:blur(8px);align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#level-overlay.open{display:flex;animation:clFlashBg .8s ease}
+@keyframes clFlashBg{0%{opacity:0}20%{opacity:1}80%{opacity:1}100%{opacity:0}}
+.cl-level-pop{text-align:center;animation:clLevelPop 1.2s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes clLevelPop{0%{transform:scale(0) rotate(-10deg);opacity:0}50%{transform:scale(1.15) rotate(2deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+.cl-level-pop-title{font-family:var(--font-head);font-size:.85rem;letter-spacing:4px;color:var(--yellow);margin-bottom:8px}
+.cl-level-pop-number{font-family:var(--font-head);font-size:4rem;font-weight:900;color:var(--cyan);text-shadow:0 0 30px var(--cyan),0 0 80px rgba(0,229,255,.5);line-height:1}
+.cl-level-pop-name{font-family:var(--font-head);font-size:1.3rem;letter-spacing:3px;color:var(--magenta);margin-top:10px;text-shadow:var(--glow-m)}
+.cl-level-ok{font-family:var(--font-head);font-size:.72rem;letter-spacing:2px;color:var(--muted);animation:clFadeIn 1s .8s ease both}
+@keyframes clFadeIn{from{opacity:0}to{opacity:1}}
+
+/* BOSS ARENA */
+#boss-screen{display:none;position:fixed;inset:0;z-index:300;background:#000;flex-direction:column;user-select:none}
+#boss-screen.active{display:flex}
+#boss-hud{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);border-bottom:1px solid rgba(0,229,255,.2);z-index:20}
+.boss-hud-section{flex:1}
+.boss-hud-section:last-child{text-align:right}
+.boss-hud-label{font-family:var(--font-head);font-size:.6rem;letter-spacing:3px;color:var(--muted);margin-bottom:6px}
+.boss-hp-bar{height:8px;background:var(--s2);border-radius:4px;overflow:hidden;max-width:250px;border:1px solid var(--border)}
+.boss-bar-enemy{max-width:300px}
+#boss-hp-fill,#player-hp-fill{height:100%;border-radius:4px;transition:width .3s}
+#player-hp-fill{background:linear-gradient(90deg,#ff0090,#ff4444);box-shadow:0 0 10px rgba(255,0,144,.5)}
+#boss-hp-fill{background:linear-gradient(90deg,#b400ff,#ff0090);box-shadow:0 0 10px rgba(180,0,255,.5)}
+.boss-hud-val{font-family:var(--font-head);font-size:.7rem;color:var(--text);margin-top:4px}
+.boss-hud-center{text-align:center;flex:0 0 auto}
+#boss-announce{font-family:var(--font-head);font-size:.8rem;letter-spacing:4px;color:var(--magenta);text-shadow:0 0 20px var(--magenta);animation:announcePulse 1.5s ease infinite}
+@keyframes announcePulse{0%,100%{opacity:1;text-shadow:0 0 20px var(--magenta)}50%{opacity:.7;text-shadow:0 0 5px var(--magenta)}}
+
+#boss-arena{position:relative;flex:1;min-height:420px;overflow:hidden;cursor:crosshair;background:radial-gradient(ellipse at 50% 30%,#0a0020 0%,#050010 60%,#000 100%);box-shadow:inset 0 0 60px rgba(180,0,255,.08);border:1px solid rgba(0,229,255,.15);border-radius:8px;user-select:none;display:block}
+#boss-hints{position:absolute;top:50px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:.7rem;color:rgba(0,229,255,.4);letter-spacing:2px;text-align:center;pointer-events:none;z-index:8}
+#boss-ent{position:absolute;cursor:crosshair;transform:translate(-50%,-50%);z-index:3;user-select:none}
+#boss-img-wrap{width:110px;height:110px;border-radius:50%;border:3px solid var(--magenta);box-shadow:0 0 40px var(--magenta),0 0 80px rgba(180,0,255,.4);overflow:hidden;display:block;animation:bossFloat 3s ease-in-out infinite;cursor:crosshair;background:#0a0020}
+#boss-img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;cursor:crosshair}
+@keyframes bossFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+#boss-name-label{font-family:var(--font-head);font-size:.65rem;letter-spacing:3px;color:var(--magenta);text-align:center;margin-top:6px;text-shadow:0 0 10px var(--magenta);pointer-events:none}
+#boss-projectiles{position:absolute;inset:0;pointer-events:none;z-index:4;overflow:hidden}
+#boss-rockets{position:absolute;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+#player-sprite{width:40px;height:40px;border-radius:50%;box-shadow:0 0 15px var(--cyan),0 0 30px rgba(0,229,255,.4);border:2px solid var(--cyan);background:radial-gradient(circle at 40% 35%,#1a3a5a,#050509);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;transform:translate(-50%,-50%);z-index:6}
+#player-sprite.shield-active{box-shadow:0 0 20px var(--yellow),0 0 40px rgba(255,230,0,.6);border-color:var(--yellow);animation:shieldPulse .4s ease infinite}
+#player-sprite.invincible{opacity:.6}
+@keyframes shieldPulse{0%,100%{box-shadow:0 0 20px var(--yellow),0 0 40px rgba(255,230,0,.6)}50%{box-shadow:0 0 35px var(--yellow),0 0 60px rgba(255,230,0,.8)}}
+
+#boss-controls{position:absolute;bottom:0;left:0;right:0;z-index:10;display:flex;justify-content:center;gap:10px;padding:14px 16px;background:linear-gradient(to top,rgba(0,0,0,.9),transparent);border-top:1px solid rgba(0,229,255,.15);flex-wrap:wrap}
+.boss-ability{display:flex;align-items:center;gap:10px;background:rgba(10,10,24,.92);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:150px;transition:border-color .2s,box-shadow .2s;cursor:pointer;position:relative;overflow:hidden}
+.boss-ability:hover:not(.disabled-btn){border-color:var(--cyan);box-shadow:0 0 12px rgba(0,229,255,.2)}
+.boss-ability.disabled-btn{opacity:.35;cursor:not-allowed}
+.ba-key{font-family:var(--font-head);font-size:.9rem;font-weight:700;color:var(--cyan);width:26px;height:26px;border:1px solid var(--cyan);border-radius:4px;display:flex;align-items:center;justify-content:center;text-shadow:var(--glow-c);flex-shrink:0}
+.ba-icon{color:var(--cyan);flex-shrink:0;display:flex;align-items:center}
+.ba-name{font-family:var(--font-head);font-size:.62rem;letter-spacing:1.5px;color:var(--text)}
+.ba-desc{font-size:.65rem;color:var(--muted);margin-top:2px}
+.ba-cooldown{font-family:var(--font-head);font-size:.8rem;color:var(--green);min-width:30px;text-align:right;flex-shrink:0}
+.ba-cooldown.on-cooldown{color:var(--magenta)}
+.ba-cd-bar{position:absolute;bottom:0;left:0;height:3px;background:var(--magenta);transition:width .1s;opacity:.7}
+
+.boss-end-screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);z-index:30}
+.boss-end-screen.active{display:flex}
+.boss-end-title{font-family:var(--font-head);font-size:3rem;font-weight:900;letter-spacing:6px;color:var(--magenta);text-shadow:0 0 40px var(--magenta);animation:defeatPulse 2s ease infinite}
+@keyframes defeatPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.03)}}
+.boss-end-title.victory{color:var(--yellow);text-shadow:0 0 40px var(--yellow)}
+.boss-end-sub{font-family:var(--font-mono);font-size:1rem;color:var(--muted);letter-spacing:2px;text-align:center}
+.boss-end-stats{display:flex;gap:40px;font-family:var(--font-head);font-size:.75rem;color:var(--muted);letter-spacing:2px}
+.boss-end-stats b{color:var(--cyan)}
+.screen-shake{animation:shake .35s ease}
+@keyframes shake{0%,100%{transform:translate(0)}20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,5px)}80%{transform:translate(3px,-5px)}}
+.boss-dying{animation:bossDie .9s ease forwards}
+@keyframes bossDie{0%{transform:scale(1) rotate(0)}50%{transform:scale(1.2) rotate(5deg);filter:brightness(3) hue-rotate(60deg)}100%{transform:scale(0) rotate(-20deg);opacity:0}}
+.boss-dmg-num{position:absolute;font-family:var(--font-head);font-size:22px;font-weight:900;pointer-events:none;z-index:20;animation:bossDmgFloat .8s ease-out forwards}
+@keyframes bossDmgFloat{0%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-120%) scale(.8)}}
+.boss-proj{position:absolute;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
+.bp-type0{background:radial-gradient(circle,#ff0090,#600);box-shadow:0 0 12px #ff0090;width:14px;height:14px}
+.bp-type1{background:radial-gradient(circle,#ffe600,#c80);box-shadow:0 0 18px #ffe600;width:18px;height:18px}
+.bp-type2{background:radial-gradient(circle,#ff00aa,#600030);box-shadow:0 0 25px #ff0090;width:22px;height:22px}
+.boss-rocket{position:absolute;pointer-events:none;transform:translate(-50%,-50%);z-index:5}
+.rocket-body{width:24px;height:8px;background:linear-gradient(90deg,#ff6600,#ff0);border-radius:0 4px 4px 0;box-shadow:0 0 10px #ff6600,0 0 20px rgba(255,100,0,.4);position:relative}
+.rocket-body::after{content:'';position:absolute;left:-8px;top:1px;width:0;height:0;border-top:3px solid transparent;border-bottom:3px solid transparent;border-right:10px solid #ff3300;filter:drop-shadow(0 0 4px #ff3300)}
+.rocket-trail{position:absolute;right:100%;top:50%;transform:translateY(-50%);width:20px;height:3px;background:linear-gradient(90deg,transparent,#ff6600);opacity:.7;border-radius:2px}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<!-- Level up overlay -->
+<div id="level-overlay">
+  <div class="cl-level-pop">
+    <div class="cl-level-pop-title">// НОВЫЙ УРОВЕНЬ //</div>
+    <div class="cl-level-pop-number" id="ol-number">2</div>
+    <div class="cl-level-pop-name" id="ol-name">КИРИЛЛ</div>
+  </div>
+  <div class="cl-level-ok">[ нажмите ENTER или SPACE, чтобы продолжить ]</div>
+</div>
+
+<!-- Boss fight screen -->
+<div id="boss-screen">
+  <div id="boss-hud">
+    <div class="boss-hud-section">
+      <div class="boss-hud-label">ТВОЕ ХП</div>
+      <div class="boss-hp-bar"><div id="player-hp-fill" style="width:100%"></div></div>
+      <div class="boss-hud-val"><span id="player-hp-text">200</span> / 200</div>
+    </div>
+    <div class="boss-hud-center">
+      <div id="boss-announce" style="font-family:var(--font-head);font-size:.8rem;letter-spacing:4px;color:var(--magenta);text-shadow:0 0 20px var(--magenta);animation:announcePulse 1.5s ease infinite">Сражения нет</div>
+    </div>
+    <div class="boss-hud-section" style="text-align:right">
+      <div class="boss-hud-label">ХП БОССА</div>
+      <div class="boss-hp-bar boss-bar-enemy"><div id="boss-hp-fill" style="width:100%"></div></div>
+      <div class="boss-hud-val"><span id="boss-hp-text">500</span> / <span id="boss-hp-max">500</span></div>
+    </div>
+  </div>
+
+  <div id="boss-arena" tabindex="0">
+    <div id="boss-hints">WASD — ДВИЖЕНИЕ &nbsp;|&nbsp; ЛКМ — ОГОНЬ &nbsp;|&nbsp; Q W E R — НАВЫКИ</div>
+    <div id="boss-ent">
+      <div id="boss-img-wrap">
+        <img id="boss-img" src="images/5.jpg" alt="boss" draggable="false"/>
+      </div>
+      <div id="boss-name-label">БОСС: ЛЕХА КИБЕРТРОН</div>
+    </div>
+    <div id="boss-projectiles"></div>
+    <div id="boss-rockets"></div>
+    <div id="player-sprite"></div>
+  </div>
+
+  <div id="boss-controls">
+    <div class="boss-ability" id="ab-rocket">
+      <div class="ba-key">Q</div>
+      <div class="ba-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </div>
+      <div>
+        <div class="ba-name">РАКЕТНАЯ АТАКА</div>
+        <div class="ba-desc">5 ракет в босса</div>
+      </div>
+      <div class="ba-cooldown" id="cd-rocket">—</div>
+      <div class="ba-cd-bar" id="cdbar-rocket" style="width:0%"></div>
+    </div>
+    <div class="boss-ability" id="ab-shield">
+      <div class="ba-key">W</div>
+      <div class="ba-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
+        <div class="ba-name">ЩИТ</div>
+        <div class="ba-desc">Блокирует урон 3 сек</div>
+      </div>
+      <div class="ba-cooldown" id="cd-shield">—</div>
+      <div class="ba-cd-bar" id="cdbar-shield" style="width:0%"></div>
+    </div>
+    <div class="boss-ability" id="ab-dash">
+      <div class="ba-key">E</div>
+      <div class="ba-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+      </div>
+      <div>
+        <div class="ba-name">РЫВОК</div>
+        <div class="ba-desc">Прыжок 150px</div>
+      </div>
+      <div class="ba-cooldown" id="cd-dash">—</div>
+      <div class="ba-cd-bar" id="cdbar-dash" style="width:0%"></div>
+    </div>
+    <div class="boss-ability" id="ab-laser">
+      <div class="ba-key">R</div>
+      <div class="ba-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <div>
+        <div class="ba-name">ЛАЗЕР</div>
+        <div class="ba-desc">150 урона</div>
+      </div>
+      <div class="ba-cooldown" id="cd-laser">—</div>
+      <div class="ba-cd-bar" id="cdbar-laser" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="boss-end" class="boss-end-screen">
+    <div id="boss-end-title">ПОРАЖЕНИЕ</div>
+    <div id="boss-end-sub">ЛЕХА КИБЕРТРОН оказался сильнее...</div>
+    <div class="boss-end-stats">
+      <span>Урон нанесён: <b id="end-dmg">0</b></span>
+      <span>Попаданий получено: <b id="boss-hits">0</b></span>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <button class="btn btn-yellow" id="btn-retry">ПОВТОРИТЬ БОЙ</button>
+      <button class="btn btn-magenta" id="btn-back-clicker">ВЕРНУТЬСЯ В КЛИКЕР</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main page -->
+<div id="page">
+  <header>
+    <a class="back-btn" href="index.html">← HUD</a>
+    <div class="header-title">CYBER//CLICKER</div>
+    <div class="header-right"></div>
+  </header>
+
+  <div class="clicker-layout">
+    <div class="clicker-left">
+      <div class="clicker-level-bar">
+        <div class="clicker-level-label">
+          <span class="cl-badge">УРОВЕНЬ <span id="cl-level">1</span></span>
+          <span class="cl-core-name" id="cl-core-name">САШКА</span>
+        </div>
+        <div class="cl-progress-wrap">
+          <div class="cl-progress-track"><div class="cl-progress-fill" id="cl-progress-fill"></div></div>
+          <div class="cl-progress-text" id="cl-progress-text">0 / 50</div>
+        </div>
+      </div>
+
+      <div class="clicker-core-wrap">
+        <div class="clicker-core-ring"></div>
+        <div class="clicker-core-ring cl-ring2"></div>
+        <div class="clicker-core" id="cl-core">
+          <img id="cl-core-img" class="cl-core-img" src="" alt=""/>
+          <div class="cl-level-tag" id="cl-level-tag">LVL 1</div>
+        </div>
+        <div class="clicker-particle-container" id="cl-particles"></div>
+      </div>
+
+      <div class="clicker-stats">
+        <div class="cl-stat"><div class="cl-stat-val" id="cl-total">0</div><div class="cl-stat-key">КЛИКОВ ВСЕГО</div></div>
+        <div class="cl-stat"><div class="cl-stat-val" id="cl-cps">0</div><div class="cl-stat-key">В СЕКУНДУ</div></div>
+        <div class="cl-stat"><div class="cl-stat-val" id="cl-cpc">1</div><div class="cl-stat-key">ЗА КЛИК</div></div>
+      </div>
+    </div>
+
+    <div class="clicker-right">
+      <div class="card">
+        <div class="card-title">// ПРОКАЧКА</div>
+        <div class="cl-upgrade" id="cl-upg-level">
+          <div style="display:flex;align-items:center;gap:8px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--yellow)"><polyline points="18 15 12 9 6 15"/></svg>
+            <div>
+              <div style="font-family:var(--font-head);font-size:.68rem;letter-spacing:1.5px" id="cl-upg-level-name">СЛЕДУЮЩИЙ УРОВЕНЬ</div>
+              <div style="font-size:.75rem;color:var(--muted);margin-top:3px" id="cl-upg-level-desc">САШКА → КИРИЛЛ</div>
+            </div>
+          </div>
+          <button class="btn btn-yellow btn-sm" id="cl-btn-level"><span id="cl-upg-level-cost">50</span> КЛИКОВ</button>
+        </div>
+        <div class="neon-sep"></div>
+        <div class="cl-upgrades-list" id="cl-upgrades-list"></div>
+        <div class="neon-sep"></div>
+        <button class="btn btn-red btn-sm" id="cl-btn-reset" style="width:100%;justify-content:center">СБРОСИТЬ ПРОГРЕСС</button>
+      </div>
+      <div class="card" style="padding:16px;margin-top:14px">
+        <div class="card-title" style="font-size:.7rem">// АВТОКЛИКЕРЫ</div>
+        <div id="cl-auto-count" style="color:var(--cyan);font-size:.78rem">Активных: 0</div>
+        <div id="cl-auto-details" class="auto-info">Нет автокликеров</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+/* ========== DATA ========== */
+var LEVELS=[
+  {level:1,name:'САШКА',clicks:0,cpc:1},
+  {level:2,name:'КИРИЛЛ',clicks:50,cpc:2},
+  {level:3,name:'СТАСИК-ПИДОРАСИК',clicks:200,cpc:5},
+  {level:4,name:'АНДРЕЙ РИМСКИЙ',clicks:800,cpc:12},
+  {level:5,name:'ЛЕХА КИБЕРТРОН',clicks:2000,cpc:50},
+];
+var UPG=[
+  {id:'clickPower',name:'СИЛА КЛИКА',baseCost:15,costMult:1.6,effectDesc:'+1 за клик',max:99},
+  {id:'autoClick',name:'АВТОКЛИКЕР',baseCost:50,costMult:1.8,effectDesc:'+1 в сек',max:50},
+  {id:'crit',name:'КРИТ. УДАР',baseCost:200,costMult:2.2,effectDesc:'x2 шанс 10%',max:20},
+  {id:'multi',name:'МУЛЬТИКЛИК',baseCost:1000,costMult:2.5,effectDesc:'+2 за клик',max:20},
+];
+
+/* ========== STATE ========== */
+var state={level:1,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};
+
+function save(){
+  try{localStorage.setItem('cl_state_v2',JSON.stringify(state))}catch(e){}
+}
+function load(){
+  try{
+    var s=JSON.parse(localStorage.getItem('cl_state_v2')||'null');
+    if(!s)return;
+    state.level=s.level||1;
+    state.totalClicks=s.totalClicks||0;
+    state.clickPower=s.clickPower||0;
+    state.autoClick=s.autoClick||0;
+    state.crit=s.crit||0;
+    state.multi=s.multi||0;
+    state.level=Math.min(state.level,5);
+  }catch(e){}
+}
+
+/* ========== CLICKER CORE ========== */
+function getCPC(){
+  return LEVELS[state.level-1].cpc+(state.clickPower||0)+(state.multi||0)*2;
+}
+function getCPS(){
+  return state.autoClick||0;
+}
+function doClick(){
+  var cpc=getCPC();
+  var crit=(state.crit>0)&&(Math.random()<state.crit*0.1);
+  var g=crit?cpc*2:cpc;
+  state.clickPower=(state.clickPower||0);
+  state.multi=(state.multi||0);
+  state.crit=(state.crit||0);
+  state.autoClick=(state.autoClick||0);
+  state.clicks=(state.clicks||0)+g;
+  state.totalClicks+=g;
+  spawnParticle('+'+g+(crit?' CRIT':''));
+  checkLevel();
+  updateUI();
+}
+state.clicks=0;
+
+function spawnParticle(text){
+  var el=document.createElement('div');
+  el.className='cl-particle';
+  var offset=((Math.random()-0.5)*60);
+  el.style.left='calc(50% + '+offset+'px)';
+  el.style.top='45%';
+  el.textContent=text;
+  document.getElementById('cl-particles').appendChild(el);
+  setTimeout(function(){el.remove()},900);
+}
+
+function checkLevel(){
+  var n=state.level+1;
+  if(n>LEVELS.length)return;
+  if(state.totalClicks>=LEVELS[n-1].clicks){
+    state.level=n;
+    if(n===5){
+      showLevelOverlay(5,'ЛЕХА КИБЕРТРОН',true);
+    } else {
+      showLevelOverlay(n,LEVELS[n-1].name,false);
+    }
+    renderUpg();
+    updateUI();
+  }
+}
+
+function showLevelOverlay(n,name,isBoss){
+  var ov=document.getElementById('level-overlay');
+  document.getElementById('ol-number').textContent=n;
+  document.getElementById('ol-name').textContent=name;
+  ov.classList.add('open');
+  var handler=function(e){
+    if(e.key==='Enter'||e.key===' '){
+      e.preventDefault();
+      ov.classList.remove('open');
+      document.removeEventListener('keydown',handler);
+      if(isBoss){
+        save();
+        openBossScreen();
+      }
+    }
+  };
+  document.addEventListener('keydown',handler);
+}
+
+function autoTick(){
+  var s=getCPS();
+  if(s<=0)return;
+  state.clicks=(state.clicks||0)+s;
+  state.totalClicks+=s;
+  checkLevel();
+  updateUI();
+}
+
+/* ========== UPGRADES ========== */
+function buyUpg(id){
+  var u=UPG.find(function(x){return x.id===id});
+  var owned=state[id]||0;
+  var cost=Math.floor(u.baseCost*Math.pow(u.costMult,owned));
+  if(state.clicks<cost||owned>=u.max)return;
+  state.clicks-=cost;
+  state[id]=(state[id]||0)+1;
+  renderUpg();
+  updateUI();
+  save();
+}
+
+function renderUpg(){
+  var list=document.getElementById('cl-upgrades-list');
+  list.innerHTML='';
+  UPG.forEach(function(u){
+    var owned=state[u.id]||0;
+    var cost=Math.floor(u.baseCost*Math.pow(u.costMult,owned));
+    var can=(state.clicks||0)>=cost&&owned<u.max;
+    var card=document.createElement('div');
+    card.className='cl-upg-card'+(owned>=u.max?' disabled':'');
+    card.innerHTML='<div class="cl-upg-card-info"><div class="cl-upg-card-name">'+u.name+'</div><div class="cl-upg-card-desc">'+u.effectDesc+'</div><div class="cl-upg-card-owned">КУПЛЕНО: '+owned+(u.max<99?' / '+u.max:'')+'</div></div><button class="cl-btn-buy" data-id="'+u.id+'" '+(can?'':'disabled')+'>'+(owned>=u.max?'MAX':fmt(cost))+'</button>';
+    list.appendChild(card);
+  });
+  list.onclick=function(e){
+    var btn=e.target.closest('.cl-btn-buy');
+    if(!btn||btn.disabled)return;
+    buyUpg(btn.dataset.id);
+  };
+}
+
+function fmt(n){
+  n=Math.floor(n||0);
+  return n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n);
+}
+
+/* ========== UI ========== */
+function updateUI(){
+  var i=state.level-1;
+  var l=LEVELS[i];
+  document.getElementById('cl-level').textContent=state.level;
+  document.getElementById('cl-core-name').textContent=l.name;
+  document.getElementById('cl-level-tag').textContent='LVL '+state.level;
+  var prev=i>0?LEVELS[i-1].clicks:0;
+  var need=l.clicks-prev;
+  var have=state.totalClicks-prev;
+  var pct=Math.min(100,(have/need)*100);
+  document.getElementById('cl-progress-fill').style.width=pct+'%';
+  document.getElementById('cl-progress-text').textContent=have+' / '+need;
+  document.getElementById('cl-total').textContent=fmt(state.totalClicks);
+  document.getElementById('cl-cps').textContent=fmt(getCPS());
+  document.getElementById('cl-cpc').textContent=fmt(getCPC());
+  var ac=state.autoClick||0;
+  document.getElementById('cl-auto-count').textContent='Активных: '+ac;
+  document.getElementById('cl-auto-details').textContent=ac>0?'+'+ac+' клик/сек':'Нет автокликеров';
+
+  // Level upgrade button
+  var n=LEVELS[state.level];
+  var btnL=document.getElementById('cl-btn-level');
+  if(n){
+    document.getElementById('cl-upg-level-name').textContent='СЛЕДУЮЩИЙ УРОВЕНЬ';
+    document.getElementById('cl-upg-level-desc').textContent=l.name+' -> '+n.name;
+    document.getElementById('cl-upg-level-cost').textContent=n.clicks;
+    btnL.disabled=state.totalClicks<n.clicks;
+  } else {
+    document.getElementById('cl-upg-level-name').textContent='МАКСИМУМ ДОСТИГНУТ';
+    document.getElementById('cl-upg-level-desc').textContent='Все уровни пройдены!';
+    document.getElementById('cl-upg-level-cost').textContent='MAX';
+    btnL.disabled=true;
+  }
+}
+
+function drawCoreImg(lvl){
+  var exts={1:'png',2:'jpg',3:'png',4:'png',5:'jpg'};
+  var ext=exts[lvl]||'png';
+  var img=document.getElementById('cl-core-img');
+  img.src='images/'+lvl+'.'+ext;
+  img.style.display='block';
+}
+
+/* ========== INIT ========== */
+function init(){
+  load();
+  if(state.level===5){
+    state.level=1;state.totalClicks=0;state.clicks=0;
+    save();
+  }
+  drawCoreImg(state.level);
+  renderUpg();
+  updateUI();
+  setInterval(autoTick,1000);
+  setInterval(save,5000);
+}
+
+/* ========== EVENT LISTENERS ========== */
+document.getElementById('cl-core').addEventListener('click',function(){
+  doClick();
+  save();
+});
+document.getElementById('cl-core').addEventListener('touchstart',function(e){
+  e.preventDefault();doClick();save();
+},{passive:false});
+document.getElementById('cl-btn-level').addEventListener('click',function(){checkLevel();updateUI()});
+document.getElementById('cl-btn-reset').addEventListener('click',function(){
+  if(!confirm('Сбросить весь прогресс кликера?'))return;
+  state={level:1,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0,clicks:0};
+  localStorage.removeItem('cl_state_v2');
+  drawCoreImg(1);renderUpg();updateUI();
+});
+
+/* ========== BOSS FIGHT ========== */
+var boss=null;
+var keys={};
+var arenaRect=null;
+
+function openBossScreen(){
+  document.getElementById('boss-screen').classList.add('active');
+  document.getElementById('boss-end').classList.remove('active');
+  initBossFight();
+}
+
+function closeBossScreen(returnToClicker){
+  document.getElementById('boss-screen').classList.remove('active');
+  boss=null;
+  if(returnToClicker){
+    document.getElementById('cl-core').click();
+  }
+}
+
+function initBossFight(){
+  if(boss&&boss.alive)return;
+  boss={
+    hp:500,maxHp:500,
+    x:0,y:0,targetX:0,targetY:0,
+    moveTimer:0,attackTimer:0,
+    phase:1,
+    alive:true,dying:false,
+    totalDmg:0,hits:0,
+    playerHp:200,playerMaxHp:200,
+    playerX:0,playerY:0,
+    invincible:false,invTimer:0,
+    shieldActive:false,shieldTimer:0,
+    animId:null,lastTs:0,
+    cooldowns:{rocket:0,shield:0,dash:0,laser:0},
+  };
+
+  var arena=document.getElementById('boss-arena');
+  arena.focus();
+  arenaRect=arena.getBoundingClientRect();
+  boss.x=arenaRect.width/2;boss.y=arenaRect.height*0.3;
+  boss.targetX=boss.x;boss.targetY=boss.y;
+  boss.playerX=arenaRect.width/2;boss.playerY=arenaRect.height*0.7;
+
+  document.getElementById('boss-hp-fill').style.width='100%';
+  document.getElementById('boss-hp-text').textContent='500';
+  document.getElementById('boss-hp-max').textContent='500';
+  document.getElementById('player-hp-fill').style.width='100%';
+  document.getElementById('player-hp-text').textContent='200';
+  document.getElementById('end-dmg').textContent='0';
+  document.getElementById('boss-hits').textContent='0';
+  document.getElementById('boss-ent').style.display='block';
+  document.getElementById('boss-ent').classList.remove('boss-dying');
+  document.getElementById('boss-img-wrap').style.filter='';
+  document.getElementById('boss-projectiles').innerHTML='';
+  document.getElementById('boss-rockets').innerHTML='';
+  document.getElementById('player-sprite').className='';
+
+  updateBossPos();
+  updatePlayerPos();
+  document.getElementById('boss-announce').textContent='БОСС АКТИВИРОВАН';
+  setTimeout(function(){
+    if(boss&&boss.alive)document.getElementById('boss-announce').textContent='WASD — ДВИГАЙСЯ | ЛКМ — СТРЕЛЯЙ!';
+  },2000);
+
+  boss.lastTs=performance.now();
+  boss.animId=requestAnimationFrame(bossLoop);
+}
+
+function bossLoop(ts){
+  if(!boss||!boss.alive)return;
+  var dt=Math.min(ts-boss.lastTs,50);
+  boss.lastTs=ts;
+  arenaRect=document.getElementById('boss-arena').getBoundingClientRect();
+
+  if(!boss.dying){
+    var speed=0.18*dt;
+    if(keys['w']||keys['ц'])boss.playerY-=speed;
+    if(keys['s']||keys['ы'])boss.playerY+=speed;
+    if(keys['a']||keys['ф'])boss.playerX-=speed;
+    if(keys['d']||keys['в'])boss.playerX+=speed;
+    var pr=20;
+    boss.playerX=Math.max(pr,Math.min(arenaRect.width-pr,boss.playerX));
+    boss.playerY=Math.max(pr,Math.min(arenaRect.height-pr,boss.playerY));
+
+    boss.moveTimer-=dt;
+    if(boss.moveTimer<=0){
+      boss.targetX=90+Math.random()*(arenaRect.width-180);
+      boss.targetY=90+Math.random()*(arenaRect.height-200);
+      boss.moveTimer=1200+Math.random()*1800;
+    }
+    var ms=0.0025*dt;
+    boss.x+=(boss.targetX-boss.x)*ms;
+    boss.y+=(boss.targetY-boss.y)*ms;
+
+    boss.attackTimer-=dt;
+    if(boss.attackTimer<=0){
+      bossShoot();
+      boss.attackTimer=boss.phase===1?2200:boss.phase===2?1500:900;
+    }
+
+    if(boss.invincible){
+      boss.invTimer-=dt;
+      if(boss.invTimer<=0){boss.invincible=false;document.getElementById('player-sprite').classList.remove('invincible');}
+    }
+    if(boss.shieldActive){
+      boss.shieldTimer-=dt;
+      if(boss.shieldTimer<=0){boss.shieldActive=false;document.getElementById('player-sprite').classList.remove('shield-active');}
+    }
+    for(var k in boss.cooldowns){
+      if(boss.cooldowns[k]>0){
+        boss.cooldowns[k]=Math.max(0,boss.cooldowns[k]-dt);
+        updateCD(k);
+      }
+    }
+    moveBossProj(dt);moveRockets(dt);checkBossHits();updateBossUI();
+  }
+  updateBossPos();updatePlayerPos();
+  boss.animId=requestAnimationFrame(bossLoop);
+}
+
+function bossShoot(){
+  if(!boss||!boss.alive)return;
+  var count=boss.phase===1?1:boss.phase===2?2:3;
+  for(var i=0;i<count;i++){
+    (function(i2){
+      setTimeout(function(){
+        if(!boss||!boss.alive)return;
+        var spread=boss.phase===3?0.7:0.25;
+        var angle=Math.atan2(boss.playerY-boss.y,boss.playerX-boss.x)+(Math.random()-0.5)*spread;
+        spawnBossProj(angle,.055+boss.phase*0.012);
+      },i2*220);
+    })(i);
+  }
+}
+
+function spawnBossProj(angle,speed){
+  var el=document.createElement('div');
+  el.className='boss-proj bp-type'+(boss.phase-1);
+  el.style.left=boss.x+'px';
+  el.style.top=boss.y+'px';
+  el._vx=Math.cos(angle)*speed;
+  el._vy=Math.sin(angle)*speed;
+  el._born=performance.now();
+  document.getElementById('boss-projectiles').appendChild(el);
+}
+
+function moveBossProj(dt){
+  var remove=[];
+  document.querySelectorAll('.boss-proj').forEach(function(el){
+    var left=parseFloat(el.style.left)+el._vx*dt;
+    var top=parseFloat(el.style.top)+el._vy*dt;
+    el.style.left=left+'px';el.style.top=top+'px';
+    if(left<-30||left>arenaRect.width+30||top<-30||top>arenaRect.height+30||performance.now()-el._born>7000){
+      remove.push(el);
+    }
+  });
+  remove.forEach(function(el){el.remove()});
+}
+
+function moveRockets(dt){
+  var remove=[];
+  document.querySelectorAll('.boss-rocket').forEach(function(el){
+    var left=parseFloat(el.style.left)+el._vx*dt;
+    var top=parseFloat(el.style.top)+el._vy*dt;
+    el.style.left=left+'px';el.style.top=top+'px';
+    if(boss&&boss.alive&&!boss.dying){
+      var dx=left-boss.x,dy=top-boss.y;
+      if(Math.sqrt(dx*dx+dy*dy)<70){
+        dealBossDmg(20,false);
+        remove.push(el);return;
+      }
+    }
+    if(left<-30||left>arenaRect.width+30||top<-30||top>arenaRect.height+30||performance.now()-el._born>3000){
+      remove.push(el);
+    }
+  });
+  remove.forEach(function(el){el.remove()});
+}
+
+function checkBossHits(){
+  if(!boss||!boss.alive)return;
+  document.querySelectorAll('.boss-proj').forEach(function(el){
+    var px=parseFloat(el.style.left),py=parseFloat(el.style.top);
+    var dx=px-boss.playerX,dy=py-boss.playerY;
+    if(Math.sqrt(dx*dx+dy*dy)<22){
+      if(!boss.invincible&&!boss.shieldActive){
+        var dmg=10;
+        boss.playerHp=Math.max(0,boss.playerHp-dmg);
+        boss.hits++;
+        boss.invincible=true;boss.invTimer=1500;
+        document.getElementById('player-sprite').classList.add('invincible');
+        document.getElementById('player-hp-fill').style.width=(boss.playerHp/boss.playerMaxHp*100)+'%';
+        document.getElementById('player-hp-text').textContent=boss.playerHp;
+        shakeScreen();
+      }
+      el.remove();
+      if(boss.playerHp<=0&&!boss.shieldActive)endBoss(false);
+    }
+  });
+}
+
+function shakeScreen(){
+  var a=document.getElementById('boss-arena');
+  a.classList.remove('screen-shake');
+  void a.offsetWidth;
+  a.classList.add('screen-shake');
+  setTimeout(function(){a.classList.remove('screen-shake')},350);
+}
+
+function updateBossUI(){
+  if(!boss)return;
+  var pct=Math.max(0,boss.hp/boss.maxHp*100);
+  document.getElementById('boss-hp-fill').style.width=pct+'%';
+  document.getElementById('boss-hp-text').textContent=Math.ceil(Math.max(0,boss.hp));
+  if(boss.hp<boss.maxHp*0.33&&boss.phase<3){
+    boss.phase=3;
+    document.getElementById('boss-announce').textContent='ФАЗА 3 — ЯРОСТЬ';
+    document.getElementById('boss-img-wrap').style.filter='hue-rotate(90deg) brightness(1.4)';
+  } else if(boss.hp<boss.maxHp*0.66&&boss.phase<2){
+    boss.phase=2;
+    document.getElementById('boss-announce').textContent='ФАЗА 2';
+    document.getElementById('boss-img-wrap').style.filter='hue-rotate(45deg)';
+  }
+}
+
+function updateBossPos(){
+  if(boss){
+    var bi=document.getElementById('boss-ent');
+    bi.style.left=boss.x+'px';
+    bi.style.top=boss.y+'px';
+  }
+}
+
+function updatePlayerPos(){
+  if(boss){
+    var p=document.getElementById('player-sprite');
+    p.style.left=boss.playerX+'px';
+    p.style.top=boss.playerY+'px';
+  }
+}
+
+function updateCD(key){
+  var cd=boss.cooldowns[key];
+  var max=key==='rocket'?6000:key==='shield'?12000:key==='dash'?8000:15000;
+  var pct=(cd/max)*100;
+  var bar=document.getElementById('cdbar-'+key);
+  var txt=document.getElementById('cd-'+key);
+  if(bar)bar.style.width=pct+'%';
+  if(txt){
+    txt.textContent=cd>0?(cd/1000).toFixed(1)+'с':'—';
+    txt.className='ba-cooldown'+(cd>0?' on-cooldown':'');
+  }
+}
+
+function fireRocket(){
+  if(!boss||!boss.alive||boss.dying)return;
+  var tx=boss._mx!==undefined?boss._mx:boss.x;
+  var ty=boss._my!==undefined?boss._my:boss.y;
+  var angle=Math.atan2(ty-boss.playerY,tx-boss.playerX);
+  spawnRocket(boss.playerX,boss.playerY,angle);
+}
+
+function spawnRocket(px,py,angle){
+  var el=document.createElement('div');
+  el.className='boss-rocket';
+  el.style.left=px+'px';
+  el.style.top=py+'px';
+  var body=document.createElement('div');
+  body.className='rocket-body';
+  el.appendChild(body);
+  var trail=document.createElement('div');
+  trail.className='rocket-trail';
+  el.appendChild(trail);
+  var speed=0.35;
+  el._vx=Math.cos(angle)*speed;
+  el._vy=Math.sin(angle)*speed;
+  el._born=performance.now();
+  document.getElementById('boss-rockets').appendChild(el);
+  var deg=angle*180/Math.PI;
+  body.style.transform='rotate('+deg+'deg)';
+  trail.style.transform='translateY(-50%)';
+}
+
+function dealBossDmg(baseDmg,isCrit){
+  if(!boss||!boss.alive||boss.dying)return;
+  var cpc=1+(state.clickPower||0)+(state.multi||0)*2;
+  var dmg=isCrit?baseDmg*2:baseDmg;
+  boss.hp-=dmg;boss.totalDmg+=dmg;
+  document.getElementById('end-dmg').textContent=boss.totalDmg;
+  var bi=document.getElementById('boss-img-wrap');
+  bi.style.transition='none';bi.style.filter='brightness(3)';
+  setTimeout(function(){
+    if(!boss)return;
+    bi.style.transition='';
+    bi.style.filter=boss.phase>=3?'hue-rotate(90deg) brightness(1.4)':boss.phase>=2?'hue-rotate(45deg)':'';
+  },80);
+  var num=document.createElement('div');
+  num.className='boss-dmg-num';
+  num.style.left=boss.x+'px';
+  num.style.top=(boss.y-90)+'px';
+  num.style.color=isCrit?'#ff6600':'#ffe600';
+  num.textContent=(isCrit?'CRIT ':'-')+dmg;
+  document.getElementById('boss-arena').appendChild(num);
+  setTimeout(function(){num.remove()},800);
+  updateBossUI();
+  if(boss.hp<=0){boss.hp=0;endBoss(true);}
+}
+
+function skillRocket(){
+  if(!boss||!boss.alive||boss.cooldowns.rocket>0)return;
+  boss.cooldowns.rocket=6000;
+  for(var i=0;i<5;i++){
+    (function(i2){
+      setTimeout(function(){
+        if(!boss||!boss.alive)return;
+        var angle=Math.atan2(boss.y-boss.playerY,boss.x-boss.playerX)+(i2-2)*0.15;
+        spawnRocket(boss.playerX,boss.playerY,angle);
+      },i2*80);
+    })(i);
+  }
+}
+
+function skillShield(){
+  if(!boss||!boss.alive||boss.cooldowns.shield>0)return;
+  boss.cooldowns.shield=12000;
+  boss.shieldActive=true;boss.shieldTimer=3000;
+  document.getElementById('player-sprite').classList.add('shield-active');
+  shakeScreen();
+}
+
+function skillDash(){
+  if(!boss||!boss.alive||boss.cooldowns.dash>0)return;
+  boss.cooldowns.dash=8000;
+  var dx=0,dy=0;
+  if(keys['w']||keys['ц'])dy=-1;
+  else if(keys['s']||keys['ы'])dy=1;
+  else if(keys['a']||keys['ф'])dx=-1;
+  else if(keys['d']||keys['в'])dx=1;
+  else {dx=1;dy=0;}
+  var len=Math.sqrt(dx*dx+dy*dy)||1;
+  var dist=150;
+  boss.playerX=Math.max(20,Math.min(arenaRect.width-20,boss.playerX+(dx/len)*dist));
+  boss.playerY=Math.max(20,Math.min(arenaRect.height-20,boss.playerY+(dy/len)*dist));
+  boss.invincible=true;boss.invTimer=300;
+  document.getElementById('player-sprite').classList.add('invincible');
+  updatePlayerPos();
+}
+
+function skillLaser(){
+  if(!boss||!boss.alive||boss.cooldowns.laser>0)return;
+  boss.cooldowns.laser=15000;
+  dealBossDmg(150,true);
+}
+
+function endBoss(victory){
+  if(!boss)return;
+  boss.alive=false;boss.dying=true;
+  cancelAnimationFrame(boss.animId);
+  var end=document.getElementById('boss-end');
+  end.classList.add('active');
+  var t=document.getElementById('boss-end-title');
+  var s=document.getElementById('boss-end-sub');
+  if(victory){
+    t.textContent='ПОБЕДА';t.className='boss-end-title victory';
+    s.textContent='ЛЕХА КИБЕРТРОН уничтожен!';
+    document.getElementById('boss-ent').classList.add('boss-dying');
+    state.level=6;state.totalClicks=0;state.clicks=0;
+    save();
+  } else {
+    t.textContent='ПОРАЖЕНИЕ';t.className='boss-end-title';
+    s.textContent='ЛЕХА КИБЕРТРОН оказался сильнее...';
+  }
+  document.getElementById('boss-hits').textContent=boss.hits;
+}
+
+/* Boss event listeners */
+document.getElementById('boss-arena').addEventListener('click',function(){
+  if(boss&&boss.alive)fireRocket();
+});
+document.getElementById('boss-arena').addEventListener('mousemove',function(e){
+  if(!boss||!boss.alive)return;
+  var r=e.currentTarget.getBoundingClientRect();
+  boss._mx=e.clientX-r.left;
+  boss._my=e.clientY-r.top;
+});
+document.getElementById('boss-arena').addEventListener('touchstart',function(e){
+  e.preventDefault();
+  if(!boss||!boss.alive)return;
+  var r=document.getElementById('boss-arena').getBoundingClientRect();
+  var t=e.touches[0];
+  boss._mx=t.clientX-r.left;
+  boss._my=t.clientY-r.top;
+  fireRocket();
+},{passive:false});
+document.getElementById('boss-arena').addEventListener('touchmove',function(e){
+  e.preventDefault();
+  if(!boss||!boss.alive)return;
+  var r=document.getElementById('boss-arena').getBoundingClientRect();
+  var t=e.touches[0];
+  boss._mx=t.clientX-r.left;
+  boss._my=t.clientY-r.top;
+},{passive:false});
+
+document.getElementById('ab-rocket').addEventListener('click',skillRocket);
+document.getElementById('ab-shield').addEventListener('click',skillShield);
+document.getElementById('ab-dash').addEventListener('click',skillDash);
+document.getElementById('ab-laser').addEventListener('click',skillLaser);
+document.getElementById('btn-retry').addEventListener('click',function(){
+  document.getElementById('boss-end').classList.remove('active');
+  boss=null;
+  setTimeout(initBossFight,100);
+});
+document.getElementById('btn-back-clicker').addEventListener('click',function(){
+  closeBossScreen(true);
+});
+
+document.addEventListener('keydown',function(e){
+  if(!boss||!boss.alive)return;
+  var k=e.key.toLowerCase();
+  keys[k]=true;
+  if(k==='q'||k==='й')skillRocket();
+  if(k==='w'||k==='ц')skillShield();
+  if(k==='e'||k==='у')skillDash();
+  if(k==='r'||k==='к')skillLaser();
+});
+document.addEventListener('keyup',function(e){keys[e.key.toLowerCase()]=false;});
+
+/* ========== START ========== */
+init();
+
+})();
+</script>
+</body>
+</html>

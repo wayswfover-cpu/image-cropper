@@ -218,7 +218,7 @@ header{text-align:center;padding:20px 0 32px}
 .clicker-core:hover{box-shadow:0 0 20px var(--cyan),0 0 50px rgba(0,229,255,.4)}
 .clicker-core:active{transform:scale(.93)}
 .clicker-core-inner{display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
-.cl-core-icon{color:var(--cyan);display:flex}
+.cl-core-icon{color:var(--cyan);display:flex;align-items:center;justify-content:center}
 .cl-level-tag{font-family:var(--font-head);font-size:.6rem;letter-spacing:2px;
   color:var(--yellow);background:rgba(0,0,0,.4);padding:2px 8px;border-radius:2px;border:1px solid var(--yellow)}
 .clicker-particle-container{position:absolute;inset:0;pointer-events:none;overflow:visible}
@@ -459,7 +459,7 @@ header{text-align:center;padding:20px 0 32px}
           <div class="clicker-core-ring"></div>
           <div class="clicker-core-ring cl-ring2"></div>
           <div class="clicker-core" id="cl-core">
-            <canvas id="cl-core-canvas" width="100" height="100" style="border-radius:50%;display:block"></canvas>
+            <img id="cl-core-img" src="" alt="" style="width:100px;height:100px;object-fit:contain;border-radius:50%;display:block"/>
             <div class="cl-level-tag" id="cl-level-tag">LVL 1</div>
           </div>
           <div class="clicker-particle-container" id="cl-particles"></div>
@@ -686,68 +686,18 @@ const UPG=[
   {id:'multi',name:'МУЛЬТИКЛИК',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',baseCost:1000,costMult:2.5,effectDesc:'+2 за клик',max:20},
 ];
 let cl={};
-function initClicker(){if(cl._init)return;cl._init=true;cl.state={level:1,clicks:0,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};loadCS();cl.elLevel=document.getElementById('cl-level');cl.elCoreName=document.getElementById('cl-core-name');cl.elProgress=document.getElementById('cl-progress-fill');cl.elProgText=document.getElementById('cl-progress-text');cl.elCore=document.getElementById('cl-core');cl.elLevelTag=document.getElementById('cl-level-tag');cl.elTotalClicks=document.getElementById('cl-total-clicks');cl.elCps=document.getElementById('cl-cps');cl.elCpc=document.getElementById('cl-cpc');cl.elUpgList=document.getElementById('cl-upgrades-list');cl.elBtnLevel=document.getElementById('cl-btn-level');cl.elUpgLvlName=document.getElementById('cl-upg-level-name');cl.elUpgLvlDesc=document.getElementById('cl-upg-level-desc');cl.elUpgLvlCost=document.getElementById('cl-upg-level-cost');cl.elAutoCount=document.getElementById('cl-auto-count');cl.elAutoDetails=document.getElementById('cl-auto-details');cl.elParticles=document.getElementById('cl-particles');cl.elOverlay=document.getElementById('cl-level-overlay');cl.elOverlayLvl=document.getElementById('cl-overlay-level');cl.elOverlayName=document.getElementById('cl-overlay-name');cl.elBtnReset=document.getElementById('cl-btn-reset');cl.elCoreCanvas=document.getElementById('cl-core-canvas');cl.elCoreCtx=cl.elCoreCanvas.getContext('2d');cl.elCore.addEventListener('click',doClick);cl.elCore.addEventListener('touchstart',e=>{e.preventDefault();doClick();},{passive:false});cl.elBtnLevel.addEventListener('click',tryLvlUp);cl.elBtnReset.addEventListener('click',()=>{if(!confirm('Сбросить прогресс?'))return;localStorage.removeItem('cl_state');cl.state={level:1,clicks:0,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};renderCl();saveCS();});cl.elOverlay.addEventListener('click',()=>cl.elOverlay.classList.remove('open'));setInterval(autoTick,1000);setInterval(saveCS,5000);renderCl();drawCore(cl.state.level);}
+function initClicker(){if(cl._init)return;cl._init=true;cl.state={level:1,clicks:0,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};loadCS();cl.elLevel=document.getElementById('cl-level');cl.elCoreName=document.getElementById('cl-core-name');cl.elProgress=document.getElementById('cl-progress-fill');cl.elProgText=document.getElementById('cl-progress-text');cl.elCore=document.getElementById('cl-core');cl.elLevelTag=document.getElementById('cl-level-tag');cl.elTotalClicks=document.getElementById('cl-total-clicks');cl.elCps=document.getElementById('cl-cps');cl.elCpc=document.getElementById('cl-cpc');cl.elUpgList=document.getElementById('cl-upgrades-list');cl.elBtnLevel=document.getElementById('cl-btn-level');cl.elUpgLvlName=document.getElementById('cl-upg-level-name');cl.elUpgLvlDesc=document.getElementById('cl-upg-level-desc');cl.elUpgLvlCost=document.getElementById('cl-upg-level-cost');cl.elAutoCount=document.getElementById('cl-auto-count');cl.elAutoDetails=document.getElementById('cl-auto-details');cl.elParticles=document.getElementById('cl-particles');cl.elOverlay=document.getElementById('cl-level-overlay');cl.elOverlayLvl=document.getElementById('cl-overlay-level');cl.elOverlayName=document.getElementById('cl-overlay-name');cl.elBtnReset=document.getElementById('cl-btn-reset');cl.elCoreImg=document.getElementById('cl-core-img');cl.elCore.addEventListener('click',doClick);cl.elCore.addEventListener('touchstart',e=>{e.preventDefault();doClick();},{passive:false});cl.elBtnLevel.addEventListener('click',tryLvlUp);cl.elBtnReset.addEventListener('click',()=>{if(!confirm('Сбросить прогресс?'))return;localStorage.removeItem('cl_state');cl.state={level:1,clicks:0,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};renderCl();saveCS();});cl.elOverlay.addEventListener('click',()=>cl.elOverlay.classList.remove('open'));setInterval(autoTick,1000);setInterval(saveCS,5000);renderCl();drawCoreImg(cl.state.level);}
 function getCPC(){return LEVELS[cl.state.level-1].cpc+cl.state.clickPower+cl.state.multi*2;}
 function getCPS(){return cl.state.autoClick;}
 function doClick(){const cpc=getCPC();const isCrit=cl.state.crit>0&&Math.random()<cl.state.crit*0.1;const g=isCrit?cpc*2:cpc;cl.state.clicks+=g;cl.state.totalClicks+=g;spawnP('+'+g+(isCrit?' CRIT':''));checkLvl();updUI();}
 function checkLvl(){const n=cl.state.level+1;if(n>LEVELS.length)return;if(cl.state.totalClicks>=LEVELS[n-1].clicks){cl.state.level=n;showOv(n,LEVELS[n-1].name);renderCl();}}
 function tryLvlUp(){const n=LEVELS[cl.state.level];if(!n)return;if(cl.state.totalClicks>=n.clicks){cl.state.level=n.level;showOv(n.level,n.name);renderCl();}}
-function showOv(l,n){cl.elOverlayLvl.textContent=l;cl.elOverlayName.textContent=n;cl.elOverlay.classList.add('open');cl.elLevelTag.textContent='LVL '+l;drawCore(l);}
+function showOv(l,n){cl.elOverlayLvl.textContent=l;cl.elOverlayName.textContent=n;cl.elOverlay.classList.add('open');cl.elLevelTag.textContent='LVL '+l;drawCoreImg(l);}
 function spawnP(t){const e=document.createElement('div');e.className='cl-particle';e.style.left='calc(50%+'+((Math.random()-.5)*60)+'px)';e.style.top='45%';e.textContent=t;cl.elParticles.appendChild(e);setTimeout(()=>e.remove(),900);}
 function autoTick(){const s=getCPS();if(s<=0)return;cl.state.clicks+=s;cl.state.totalClicks+=s;checkLvl();updUI();}
 function fmt(n){n=Math.floor(n);return n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n+'';}
-function drawCore(lvl){const c=cl.elCoreCtx,W=100,H=100,cx=W/2,cy=H/2,r=40;c.clearRect(0,0,W,H);const PALETTE=[
-  {bg:'#0f0f22',fg:'#00e5ff',accent:'#ff0090'},
-  {bg:'#0a0a18',fg:'#a78bfa',accent:'#ffe600'},
-  {bg:'#05050a',fg:'#00ff9f',accent:'#ff0090'},
-  {bg:'#000005',fg:'#b400ff',accent:'#ff6600'},
-  {bg:'#050509',fg:'#ffe600',accent:'#ff0090'},
-];const p=PALETTE[lvl-1]||PALETTE[0];c.shadowColor=p.fg;c.shadowBlur=18;
-// Level 1 - glitch circuit board
-if(lvl===1){
-  c.fillStyle=p.bg;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
-  c.strokeStyle=p.fg;c.lineWidth=1.5;
-  for(let a=0;a<6;a++){const ang=a*Math.PI/3;c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.cos(ang)*(r-5),cy+Math.sin(ang)*(r-5));c.stroke();}
-  [[cx,cy,14,false],[cx+28,cy-10,5,true],[cx-20,cy+18,4,false],[cx+10,cy-25,3,true]].forEach(([x,y,rad,fill])=>{c.beginPath();c.arc(x,y,rad,0,Math.PI*2);fill?(c.fillStyle=p.fg,c.fill()):(c.strokeStyle=p.fg,c.lineWidth=2,c.stroke()));}
-  c.fillStyle=p.fg;c.font='bold 11px Orbitron,monospace';c.textAlign='center';c.textBaseline='middle';c.fillText('CORE',cx,cy);
-}
-// Level 2 - neural network
-if(lvl===2){
-  c.fillStyle=p.bg;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
-  const nodes=[[cx,cy],[cx+22,cy-18],[cx-22,cy-15],[cx+20,cy+20],[cx-20,cy+22],[cx,cy-30],[cx,cy+30]];
-  c.strokeStyle=p.fg;c.lineWidth=1;
-  [[0,1],[0,2],[0,4],[0,5],[0,6],[1,3],[2,3],[1,5],[2,6],[3,4],[5,6]].forEach(([a,b])=>{c.beginPath();c.moveTo(nodes[a][0],nodes[a][1]);c.lineTo(nodes[b][0],nodes[b][1]);c.stroke();});
-  nodes.forEach(([x,y],i)=>{c.beginPath();c.arc(x,y,4,0,Math.PI*2);c.fillStyle=i===0?p.accent:p.fg;c.fill();});
-  c.shadowBlur=0;c.fillStyle=p.fg;c.font='bold 10px Orbitron,monospace';c.textAlign='center';c.textBaseline='middle';c.fillText('NEURO',cx,cy+40);
-}
-// Level 3 - quantum atom
-if(lvl===3){
-  c.fillStyle=p.bg;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
-  c.strokeStyle=p.fg;c.lineWidth=1;
-  for(let i=0;i<3;i++){const ang=i*Math.PI/3;c.beginPath();c.ellipse(cx,cy,(r-5)*Math.cos(ang),(r-5)*Math.sin(ang),ang,0,Math.PI*2);c.stroke();}
-  c.beginPath();c.arc(cx,cy,5,0,Math.PI*2);c.fillStyle=p.accent;c.fill();c.shadowColor=p.fg;c.shadowBlur=20;
-  for(let i=0;i<3;i++){const e=cx+Math.cos(i*Math.PI*2/3)*(r-14),ey=cy+Math.sin(i*Math.PI*2/3)*(r-14);c.beginPath();c.arc(e,ey,5,0,Math.PI*2);c.fillStyle=p.fg;c.fill();c.strokeStyle=p.fg;c.lineWidth=1;c.beginPath();c.moveTo(cx,cy);c.lineTo(e,ey);c.stroke();}
-  c.shadowBlur=0;c.fillStyle=p.fg;c.font='bold 10px Orbitron,monospace';c.textAlign='center';c.textBaseline='middle';c.fillText('QUANT',cx,cy+44);
-}
-// Level 4 - singularity black hole
-if(lvl===4){
-  c.fillStyle=p.bg;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
-  const g=c.createRadialGradient(cx,cy,0,cx,cy,r);
-  g.addColorStop(0,'#000');g.addColorStop(0.4,p.accent);g.addColorStop(0.7,p.fg);g.addColorStop(1,'transparent');
-  c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fillStyle=g;c.fill();
-  for(let i=0;i<4;i++){const rot=i*Math.PI/4;c.save();c.translate(cx,cy);c.rotate(rot);c.beginPath();c.ellipse(0,0,r-8,5,0,0,Math.PI*2);c.strokeStyle='rgba(180,0,255,.4)';c.lineWidth=1.5;c.stroke();c.restore();}
-  c.beginPath();c.arc(cx,cy,6,0,Math.PI*2);c.fillStyle='#fff';c.shadowColor=p.fg;c.shadowBlur=25;c.fill();c.shadowBlur=0;c.fillStyle=p.fg;c.font='bold 10px Orbitron,monospace';c.textAlign='center';c.textBaseline='middle';c.fillText('VOID',cx,cy+44);
-}
-// Level 5 - star / special
-if(lvl===5){
-  c.fillStyle='#000';c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
-  const spikes=8,outer=r-4,inner=r/2.5;
-  c.beginPath();for(let i=0;i<spikes*2;i++){const rad=i%2===0?outer:inner;const ang=(i*Math.PI/spikes)-Math.PI/2;const x=cx+Math.cos(ang)*rad,y=cy+Math.sin(ang)*rad;i===0?c.moveTo(x,y):c.lineTo(x,y);}c.closePath();
-  const sg=c.createRadialGradient(cx,cy,0,cx,cy,outer);sg.addColorStop(0,p.accent);sg.addColorStop(0.5,p.fg);sg.addColorStop(1,p.accent);
-  c.fillStyle=sg;c.fill();c.strokeStyle='#fff';c.lineWidth=1;c.stroke();
-  c.shadowColor=p.fg;c.shadowBlur=30;c.fill();c.shadowBlur=0;
-  c.fillStyle='#fff';c.font='bold 9px Orbitron,monospace';c.textAlign='center';c.textBaseline='middle';c.fillText('NOVA',cx,cy+46);
-}}
+function drawCoreImg(lvl){const exts={1:'png',2:'jpg',3:'png',4:'png',5:'jpg'};const ext=exts[lvl]||'png';cl.elCoreImg.src='images/'+lvl+'.'+ext;cl.elCoreImg.style.display='block';}
+function renderCl(){const i=cl.state.level-1;const l=LEVELS[i];const n=LEVELS[cl.state.level];cl.elLevel.textContent=cl.state.level;cl.elCoreName.textContent=l.name;cl.elLevelTag.textContent='LVL '+cl.state.level;drawCoreImg(cl.state.level);const prev=i>0?LEVELS[i-1].clicks:0;const need=l.clicks-prev;const have=cl.state.totalClicks-prev;const pct=Math.min(100,(have/need)*100);cl.elProgress.style.width=pct+'%';cl.elProgText.textContent=have+' / '+need;if(n){cl.elUpgLvlName.textContent='СЛЕДУЮЩИЙ УРОВЕНЬ';cl.elUpgLvlDesc.textContent=l.name+' -> '+n.name;cl.elUpgLvlCost.textContent=n.clicks;cl.elBtnLevel.disabled=cl.state.totalClicks<n.clicks;}else{cl.elUpgLvlName.textContent='МАКСИМУМ ДОСТИГНУТ';cl.elUpgLvlDesc.textContent='Все уровни пройдены!';cl.elUpgLvlCost.textContent='MAX';cl.elBtnLevel.disabled=true;}renderUpg();updUI();}
 function updUI(){cl.elTotalClicks.textContent=fmt(cl.state.totalClicks);cl.elCps.textContent=fmt(getCPS());cl.elCpc.textContent=fmt(getCPC());const i=cl.state.level-1;const l=LEVELS[i];const prev=i>0?LEVELS[i-1].clicks:0;const need=l.clicks-prev;const have=cl.state.totalClicks-prev;const pct=Math.min(100,(have/need)*100);cl.elProgress.style.width=pct+'%';cl.elProgText.textContent=have+' / '+need;const ac=cl.state.autoClick;cl.elAutoCount.textContent='Активных: '+ac;cl.elAutoDetails.textContent=ac>0?'+'+ac+' клик/сек':'Нет автокликеров';}
 function renderUpg(){cl.elUpgList.innerHTML='';UPG.forEach(u=>{const owned=cl.state[u.id]||0;const cost=Math.floor(u.baseCost*Math.pow(u.costMult,owned));const can=cl.state.clicks>=cost&&owned<u.max;const card=document.createElement('div');card.className='cl-upg-card'+(owned>=u.max?' disabled':'');card.innerHTML='<div class="cl-upg-card-icon">'+u.icon+'</div><div class="cl-upg-card-info"><div class="cl-upg-card-name">'+u.name+'</div><div class="cl-upg-card-desc">'+u.effectDesc+'</div><div class="cl-upg-card-owned">КУПЛЕНО: '+owned+(u.max<99?' / '+u.max:'')+'</div></div><button class="cl-btn-buy" data-upg="'+u.id+'" '+((!can||owned>=u.max)?'disabled':'')+'>'+(owned>=u.max?'MAX':fmt(cost))+'</button>';cl.elUpgList.appendChild(card);});cl.elUpgList.onclick=function(e){const btn=e.target.closest('.cl-btn-buy');if(!btn||btn.disabled)return;buyUpg(btn.dataset.upg);};}
 function buyUpg(id){const u=UPG.find(x=>x.id===id);const owned=cl.state[id]||0;const cost=Math.floor(u.baseCost*Math.pow(u.costMult,owned));if(cl.state.clicks<cost||owned>=u.max)return;cl.state.clicks-=cost;cl.state[id]++;renderUpg();updUI();}

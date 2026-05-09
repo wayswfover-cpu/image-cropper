@@ -132,7 +132,7 @@ header{display:flex;align-items:center;gap:12px;padding-bottom:16px;border-botto
     <div class="stat-chip">СТРАНИЦА: <b id="cur-page">0</b></div>
     <div class="stat-chip">ПОКАЗАНО: <b id="cur-count">0</b></div>
     <div class="stat-chip">ВСЕГО: <b id="cur-total">—</b></div>
-    <input class="score-filter" id="score-min" type="number" min="0" value="50" placeholder="мин.очки"/>
+    <input class="score-filter" id="score-min" type="number" min="0" value="0" placeholder="мин.очки"/>
     <button class="btn btn-cyan" id="btn-refresh">ОБНОВИТЬ</button>
     <button class="btn btn-magenta" id="btn-apply-filter">ФИЛЬТР</button>
     <div class="spinner" id="top-spinner" style="display:none"></div>
@@ -292,12 +292,16 @@ header{display:flex;align-items:center;gap:12px;padding-bottom:16px;border-botto
       .then(function(r){ return r.json(); })
       .then(function(data){
         allPosts = data.posts || [];
-        // Sort by score desc by default
         allPosts.sort(function(a,b){ return (b.score||0) - (a.score||0); });
         filteredPosts = allPosts.filter(function(post){ return (post.score||0) >= scoreMin; });
         document.getElementById('cur-page').textContent = p;
         document.getElementById('cur-total').textContent = filteredPosts.length;
         renderGrid(true);
+        if(filteredPosts.length === 0 && allPosts.length > 0){
+          setError('Нет постов с score ≥ ' + scoreMin + '. Попробуй понизить фильтр.');
+        } else {
+          setError('');
+        }
         setLoading(false);
       })
       .catch(function(e){

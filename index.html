@@ -1,511 +1,964 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Обрезка изображений</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CYBER//HUB</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════ RESET & ROOT ════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-    :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #22263a;
-      --border: #2e3350;
-      --accent: #6c63ff;
-      --accent2: #a78bfa;
-      --text: #e8eaf6;
-      --muted: #7b82a8;
-      --danger: #f87171;
-      --success: #34d399;
-      --radius: 14px;
-      --shadow: 0 8px 32px rgba(0,0,0,.45);
-    }
+:root{
+  --bg:#050509;
+  --s1:#0a0a18;
+  --s2:#0f0f22;
+  --s3:#14142e;
+  --border:#1c1c40;
+  --cyan:#00e5ff;
+  --cyan2:#00b8d9;
+  --magenta:#ff0090;
+  --yellow:#ffe600;
+  --green:#00ff9f;
+  --purple:#b400ff;
+  --orange:#ff6600;
+  --text:#c0d8f0;
+  --muted:#3a4a6a;
+  --font-head:'Orbitron',monospace;
+  --font-mono:'Share Tech Mono',monospace;
+  --glow-c:0 0 8px var(--cyan),0 0 20px rgba(0,229,255,.3);
+  --glow-m:0 0 8px var(--magenta),0 0 20px rgba(255,0,144,.3);
+  --glow-y:0 0 8px var(--yellow),0 0 20px rgba(255,230,0,.3);
+}
 
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 32px 16px 64px;
-    }
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-mono);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
 
-    header {
-      text-align: center;
-      margin-bottom: 36px;
-    }
-    header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.5px;
-    }
-    header p {
-      color: var(--muted);
-      margin-top: 6px;
-      font-size: .95rem;
-    }
+/* ════════════════════ AMBIENT LAYERS ════════════════════ */
+body::before{                              /* grid */
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,229,255,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,.04) 1px, transparent 1px);
+  background-size:40px 40px;
+}
+.scanlines{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(
+    to bottom,
+    transparent 0px, transparent 2px,
+    rgba(0,0,0,.08) 2px, rgba(0,0,0,.08) 4px
+  );
+}
+.corner{position:fixed;width:60px;height:60px;pointer-events:none;z-index:2}
+.corner-tl{top:12px;left:12px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);box-shadow:var(--glow-c)}
+.corner-tr{top:12px;right:12px;border-top:2px solid var(--magenta);border-right:2px solid var(--magenta);box-shadow:var(--glow-m)}
+.corner-bl{bottom:12px;left:12px;border-bottom:2px solid var(--magenta);border-left:2px solid var(--magenta);box-shadow:var(--glow-m)}
+.corner-br{bottom:12px;right:12px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);box-shadow:var(--glow-c)}
 
-    /* ── Upload zone ── */
-    #upload-zone {
-      width: 100%;
-      max-width: 680px;
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      background: var(--surface);
-      padding: 56px 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color .2s, background .2s;
-      position: relative;
-    }
-    #upload-zone:hover, #upload-zone.drag-over {
-      border-color: var(--accent);
-      background: var(--surface2);
-    }
-    #upload-zone svg { color: var(--accent); margin-bottom: 12px; }
-    #upload-zone h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 6px; }
-    #upload-zone p  { color: var(--muted); font-size: .88rem; }
-    #file-input { display: none; }
+/* ════════════════════ LAYOUT ════════════════════ */
+#app{position:relative;z-index:3;max-width:980px;margin:0 auto;padding:28px 16px 80px}
 
-    .btn-upload {
-      display: inline-block;
-      margin-top: 18px;
-      padding: 10px 28px;
-      border-radius: 8px;
-      background: var(--accent);
-      color: #fff;
-      font-weight: 600;
-      font-size: .9rem;
-      cursor: pointer;
-      transition: opacity .15s;
-    }
-    .btn-upload:hover { opacity: .85; }
+/* ════════════════════ HEADER ════════════════════ */
+header{text-align:center;padding:20px 0 32px;position:relative}
+.logo{
+  font-family:var(--font-head);font-size:clamp(2rem,6vw,3.4rem);
+  font-weight:900;letter-spacing:4px;
+  color:var(--cyan);
+  text-shadow:0 0 20px var(--cyan),0 0 60px rgba(0,229,255,.4);
+  position:relative;display:inline-block;
+}
+.logo::before,.logo::after{
+  content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;
+}
+.logo::before{color:var(--magenta);animation:glitch1 4s infinite;clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%)}
+.logo::after {color:var(--cyan);  animation:glitch2 4s infinite;clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%)}
+@keyframes glitch1{0%,89%,100%{transform:translate(0)}90%{transform:translate(-4px,1px)}92%{transform:translate(4px,-1px)}94%{transform:translate(0)}}
+@keyframes glitch2{0%,94%,100%{transform:translate(0)}95%{transform:translate(3px,2px)}97%{transform:translate(-3px,-2px)}99%{transform:translate(0)}}
 
-    /* ── Editor ── */
-    #editor {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      max-width: 960px;
-      gap: 20px;
-    }
+.logo-slash{color:var(--magenta);text-shadow:var(--glow-m)}
+.tagline{
+  font-family:var(--font-mono);font-size:.8rem;color:var(--muted);
+  letter-spacing:3px;margin-top:8px;
+}
+.tagline span{color:var(--green);animation:blink 1.2s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-    }
+/* ════════════════════ TABS ════════════════════ */
+.tab-nav{
+  display:flex;gap:4px;justify-content:center;margin-bottom:28px;
+  background:var(--s1);border:1px solid var(--border);border-radius:6px;padding:5px;
+  position:relative;
+}
+.tab-btn{
+  font-family:var(--font-head);font-size:.72rem;font-weight:600;letter-spacing:2px;
+  padding:10px 22px;border:none;background:transparent;color:var(--muted);
+  cursor:pointer;border-radius:4px;transition:all .25s;position:relative;
+  display:flex;align-items:center;gap:8px;
+}
+.tab-btn svg{flex-shrink:0}
+.tab-btn:hover{color:var(--text);background:var(--s2)}
+.tab-btn.active{
+  color:var(--cyan);background:var(--s2);
+  box-shadow:0 0 0 1px var(--cyan),var(--glow-c);
+}
+.tab-btn.active::after{
+  content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+  width:30px;height:2px;background:var(--cyan);box-shadow:var(--glow-c);border-radius:2px;
+}
 
-    .btn {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 9px 20px;
-      border: none;
-      border-radius: 8px;
-      font-size: .88rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity .15s, transform .1s;
-    }
-    .btn:active { transform: scale(.97); }
-    .btn-primary  { background: var(--accent);  color: #fff; }
-    .btn-secondary{ background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-    .btn-success  { background: var(--success);  color: #0f1117; }
-    .btn-danger   { background: var(--danger);   color: #0f1117; }
-    .btn:disabled { opacity: .35; cursor: default; }
-    .btn:not(:disabled):hover { opacity: .85; }
+/* ════════════════════ PANELS ════════════════════ */
+.tab-panel{display:none;animation:fadeIn .3s ease}
+.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-    /* ── Canvas wrapper ── */
-    #canvas-wrap {
-      position: relative;
-      display: inline-block;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      background: #000;
-      cursor: crosshair;
-      user-select: none;
-      max-width: 100%;
-    }
-    #canvas-wrap canvas { display: block; max-width: 100%; }
+/* ════════════════════ CARDS / SURFACES ════════════════════ */
+.card{
+  background:var(--s1);border:1px solid var(--border);border-radius:8px;
+  padding:24px;position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  opacity:.6;
+}
+.card-title{
+  font-family:var(--font-head);font-size:.78rem;letter-spacing:3px;
+  color:var(--cyan);margin-bottom:16px;display:flex;align-items:center;gap:8px;
+}
+.card-title::before{content:'//';color:var(--magenta);opacity:.7}
 
-    /* ── Info bar ── */
-    #info-bar {
-      display: flex;
-      gap: 24px;
-      flex-wrap: wrap;
-      justify-content: center;
-      color: var(--muted);
-      font-size: .82rem;
-    }
-    #info-bar span b { color: var(--text); }
+/* ════════════════════ BUTTONS ════════════════════ */
+.btn{
+  font-family:var(--font-head);font-size:.72rem;font-weight:600;letter-spacing:1.5px;
+  padding:10px 22px;border:none;border-radius:4px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.btn::before{
+  content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,.08) 50%,transparent 60%);
+  transform:translateX(-100%);transition:transform .4s;
+}
+.btn:hover::before{transform:translateX(100%)}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.3;cursor:default}
 
-    /* ── Preview modal ── */
-    #preview-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.75);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    #preview-modal.open { display: flex; }
-    .modal-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      max-width: 90vw;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      box-shadow: var(--shadow);
-    }
-    .modal-card h3 { font-size: 1.05rem; }
-    .modal-card img {
-      max-width: 100%;
-      max-height: 60vh;
-      border-radius: 8px;
-      object-fit: contain;
-      background: repeating-conic-gradient(#2e3350 0% 25%, #22263a 0% 50%) 0 0 / 16px 16px;
-    }
-    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.btn-cyan{
+  background:transparent;color:var(--cyan);
+  border:1px solid var(--cyan);box-shadow:var(--glow-c);
+}
+.btn-cyan:not(:disabled):hover{background:rgba(0,229,255,.1);box-shadow:0 0 16px var(--cyan),0 0 40px rgba(0,229,255,.4)}
 
-    .hint {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 16px;
-      font-size: .82rem;
-      color: var(--muted);
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .hint svg { flex-shrink: 0; color: var(--accent2); }
+.btn-magenta{
+  background:transparent;color:var(--magenta);
+  border:1px solid var(--magenta);box-shadow:var(--glow-m);
+}
+.btn-magenta:not(:disabled):hover{background:rgba(255,0,144,.1);box-shadow:0 0 16px var(--magenta),0 0 40px rgba(255,0,144,.4)}
 
-    /* Resize handles */
-    .handle {
-      position: absolute;
-      width: 10px; height: 10px;
-      background: #fff;
-      border: 2px solid var(--accent);
-      border-radius: 50%;
-      z-index: 10;
-      cursor: pointer;
-    }
-  </style>
+.btn-yellow{
+  background:transparent;color:var(--yellow);
+  border:1px solid var(--yellow);box-shadow:var(--glow-y);
+}
+.btn-yellow:not(:disabled):hover{background:rgba(255,230,0,.1);box-shadow:0 0 16px var(--yellow),0 0 40px rgba(255,230,0,.4)}
+
+.btn-green{
+  background:transparent;color:var(--green);
+  border:1px solid var(--green);
+  box-shadow:0 0 8px var(--green),0 0 20px rgba(0,255,159,.3);
+}
+.btn-green:not(:disabled):hover{background:rgba(0,255,159,.1)}
+
+.btn-sm{padding:6px 14px;font-size:.65rem;letter-spacing:1px}
+
+/* ════════════════════ INPUT ════════════════════ */
+.input-field{
+  font-family:var(--font-mono);font-size:.9rem;color:var(--text);
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;
+  padding:10px 14px;width:100%;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.input-field:focus{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan),var(--glow-c)}
+.input-field::placeholder{color:var(--muted)}
+
+/* ════════════════════ HINT BAR ════════════════════ */
+.hint{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;
+  background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.15);
+  border-radius:4px;font-size:.8rem;color:var(--muted);margin-bottom:20px;
+}
+.hint svg{color:var(--cyan);flex-shrink:0}
+
+/* ════════════════════ UPLOAD ZONE ════════════════════ */
+#upload-zone{
+  border:2px dashed var(--border);border-radius:8px;
+  background:var(--s1);padding:52px 24px;text-align:center;cursor:pointer;
+  transition:border-color .25s,background .25s,box-shadow .25s;
+}
+#upload-zone:hover,#upload-zone.drag-over{
+  border-color:var(--cyan);background:var(--s2);box-shadow:var(--glow-c),inset 0 0 30px rgba(0,229,255,.04);
+}
+#upload-zone svg{color:var(--cyan);filter:drop-shadow(0 0 8px var(--cyan));margin-bottom:12px}
+#upload-zone h2{font-family:var(--font-head);font-size:1rem;letter-spacing:2px;color:var(--text);margin-bottom:8px}
+#upload-zone p{color:var(--muted);font-size:.82rem}
+#file-input{display:none}
+
+/* ════════════════════ CANVAS WRAP ════════════════════ */
+#canvas-wrap{
+  display:inline-block;position:relative;border-radius:8px;
+  box-shadow:0 0 0 1px var(--border),0 0 30px rgba(0,229,255,.08);
+  overflow:hidden;cursor:crosshair;user-select:none;max-width:100%;
+  background:#000;
+}
+#canvas-wrap canvas{display:block;max-width:100%}
+.canvas-glow{
+  position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 30px rgba(0,229,255,.06);border-radius:8px;
+}
+
+#info-bar{
+  display:flex;gap:24px;flex-wrap:wrap;justify-content:center;
+  font-size:.78rem;color:var(--muted);margin-top:8px;letter-spacing:1px;
+}
+#info-bar b{color:var(--cyan)}
+
+/* ════════════════════ CROP TOOLBAR ════════════════════ */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
+
+/* ════════════════════ ROULETTE ════════════════════ */
+.roulette-layout{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start}
+@media(max-width:680px){.roulette-layout{grid-template-columns:1fr}}
+
+.roulette-controls{display:flex;flex-direction:column;gap:16px}
+
+.items-header{
+  font-family:var(--font-head);font-size:.72rem;letter-spacing:2px;
+  color:var(--muted);margin-bottom:10px;
+}
+.item-input-row{display:flex;gap:8px}
+.item-input-row .input-field{flex:1}
+
+#items-list{
+  list-style:none;display:flex;flex-direction:column;gap:6px;
+  max-height:260px;overflow-y:auto;padding-right:4px;
+}
+#items-list::-webkit-scrollbar{width:4px}
+#items-list::-webkit-scrollbar-track{background:var(--s2)}
+#items-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.item-chip{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;
+  padding:8px 12px;font-size:.88rem;gap:8px;
+  transition:border-color .2s;
+}
+.item-chip:hover{border-color:var(--magenta)}
+.item-chip-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item-chip-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.item-chip-del{
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:1.1rem;line-height:1;padding:0 2px;transition:color .2s;
+}
+.item-chip-del:hover{color:var(--magenta)}
+
+.roulette-canvas-wrap{
+  position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+}
+.wheel-container{position:relative;display:inline-block}
+.wheel-pointer{
+  position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  width:0;height:0;
+  border-left:10px solid transparent;border-right:10px solid transparent;
+  border-top:24px solid var(--yellow);
+  filter:drop-shadow(0 0 8px var(--yellow));z-index:10;
+}
+#roulette-canvas{
+  display:block;border-radius:50%;
+  box-shadow:0 0 0 2px var(--border),0 0 40px rgba(0,229,255,.15);
+}
+
+.winner-display{
+  font-family:var(--font-head);text-align:center;
+  padding:14px 28px;background:var(--s2);border:1px solid var(--yellow);
+  border-radius:6px;box-shadow:var(--glow-y);
+  animation:winnerPop .4s cubic-bezier(0.34,1.56,0.64,1);display:none;
+}
+@keyframes winnerPop{from{transform:scale(0.6);opacity:0}to{transform:scale(1);opacity:1}}
+.winner-display .wlabel{font-size:.65rem;letter-spacing:3px;color:var(--yellow);margin-bottom:4px}
+.winner-display .wname{font-size:1.2rem;color:var(--text)}
+
+.spin-empty{color:var(--muted);font-size:.82rem;text-align:center;padding:12px}
+
+/* ════════════════════ CODES SECTION ════════════════════ */
+.codes-header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;margin-bottom:20px;
+}
+.codes-meta{font-size:.75rem;color:var(--muted);letter-spacing:1px}
+.codes-meta .source{color:var(--green);font-size:.7rem}
+.codes-meta .updated{margin-top:3px}
+
+.codes-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:14px;
+}
+
+.code-card{
+  background:var(--s2);border:1px solid var(--border);border-radius:6px;
+  padding:16px;position:relative;overflow:hidden;
+  transition:border-color .25s,box-shadow .25s;
+}
+.code-card:hover{border-color:var(--cyan);box-shadow:var(--glow-c)}
+.code-card.is-new{border-color:var(--yellow);box-shadow:var(--glow-y)}
+.code-card.is-new::before{
+  content:'NEW';position:absolute;top:10px;right:10px;
+  font-family:var(--font-head);font-size:.55rem;letter-spacing:2px;
+  color:var(--yellow);border:1px solid var(--yellow);padding:2px 8px;border-radius:2px;
+  box-shadow:var(--glow-y);
+}
+.code-card-code{
+  font-family:var(--font-head);font-size:1.05rem;letter-spacing:2px;
+  color:var(--cyan);margin-bottom:8px;word-break:break-all;
+  text-shadow:0 0 10px rgba(0,229,255,.5);
+}
+.code-card-reward{font-size:.8rem;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.code-card-actions{display:flex;gap:8px}
+
+.copied-toast{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+  font-family:var(--font-head);font-size:.75rem;letter-spacing:2px;
+  background:var(--s2);border:1px solid var(--green);color:var(--green);
+  padding:10px 24px;border-radius:4px;box-shadow:0 0 20px var(--green);
+  z-index:999;animation:toastIn .3s ease;pointer-events:none;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+.codes-loading{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  padding:60px 20px;color:var(--muted);font-size:.9rem;letter-spacing:2px;
+}
+.spinner{
+  width:24px;height:24px;border:2px solid var(--border);
+  border-top-color:var(--cyan);border-radius:50%;
+  animation:spin .7s linear infinite;box-shadow:var(--glow-c);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.codes-error{
+  padding:40px;text-align:center;color:var(--magenta);
+  font-size:.85rem;letter-spacing:1px;
+}
+
+/* ════════════════════ PREVIEW MODAL ════════════════════ */
+#preview-modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);
+  z-index:100;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(4px);
+}
+#preview-modal.open{display:flex}
+.modal-card{
+  background:var(--s1);border:1px solid var(--cyan);border-radius:8px;
+  padding:24px;max-width:90vw;max-height:90vh;
+  display:flex;flex-direction:column;gap:16px;
+  box-shadow:0 0 60px rgba(0,229,255,.2);
+}
+.modal-title{font-family:var(--font-head);font-size:.85rem;letter-spacing:3px;color:var(--cyan)}
+.modal-card img{
+  max-width:100%;max-height:58vh;border-radius:6px;object-fit:contain;
+  background:repeating-conic-gradient(#1a1a3a 0% 25%,#0f0f22 0% 50%) 0 0/16px 16px;
+  border:1px solid var(--border);
+}
+.modal-size{font-size:.78rem;color:var(--muted)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* ════════════════════ SCROLLBAR ════════════════════ */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+
+/* ════════════════════ UTIL ════════════════════ */
+.neon-sep{height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.3;margin:20px 0}
+.flex-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mt-16{margin-top:16px}
+.text-muted{color:var(--muted);font-size:.82rem}
+</style>
 </head>
 <body>
 
-<header>
-  <h1>Обрезка изображений</h1>
-  <p>Загрузите фото, выделите область и скачайте результат</p>
-</header>
+<!-- Ambient layers -->
+<div class="scanlines"></div>
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
 
-<!-- Upload zone -->
-<div id="upload-zone">
-  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-    <polyline points="17 8 12 3 7 8"/>
-    <line x1="12" y1="3" x2="12" y2="15"/>
-  </svg>
-  <h2>Перетащите изображение сюда</h2>
-  <p>или нажмите кнопку ниже&nbsp;—&nbsp;поддерживаются PNG, JPG, WEBP, GIF</p>
-  <label class="btn-upload" for="file-input">Выбрать файл</label>
-  <input type="file" id="file-input" accept="image/*" />
-</div>
+<div id="app">
 
-<!-- Editor -->
-<div id="editor">
-  <div class="hint">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    Зажмите и потяните мышью по изображению, чтобы выбрать область обрезки
-  </div>
+  <!-- ═══ HEADER ═══ -->
+  <header>
+    <div class="logo" data-text="CYBER//HUB">CYBER<span class="logo-slash">//</span>HUB</div>
+    <div class="tagline">[ SYSTEM ONLINE ] <span>▮</span></div>
+  </header>
 
-  <div class="toolbar">
-    <button class="btn btn-primary"    id="btn-crop"     disabled>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 2 6 8 2 8"/><polyline points="18 22 18 16 22 16"/><path d="M2 22 6 18 18 6l4-4"/><path d="M6 18H18V6"/></svg>
-      Обрезать
+  <!-- ═══ TAB NAV ═══ -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="crop">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 2 6 8 2 8"/><polyline points="18 22 18 16 22 16"/><path d="M2 22 6 18 18 6l4-4"/><path d="M6 18H18V6"/></svg>
+      IMG.CROP
     </button>
-    <button class="btn btn-secondary"  id="btn-reset-sel">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-      Сбросить выделение
+    <button class="tab-btn" data-tab="roulette">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      ROULETTE
     </button>
-    <button class="btn btn-secondary"  id="btn-new">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Загрузить другое
+    <button class="tab-btn" data-tab="codes">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      NTE//CODES
     </button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════
+       TAB 1 — IMAGE CROP
+  ══════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-crop">
+
+    <!-- Upload zone -->
+    <div id="upload-zone">
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <h2>DRAG &amp; DROP IMAGE</h2>
+      <p>или нажмите, чтобы выбрать файл&nbsp;· PNG · JPG · WEBP · GIF</p>
+      <label class="btn btn-cyan mt-16" style="margin-top:18px" for="file-input">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg>
+        ВЫБРАТЬ ФАЙЛ
+      </label>
+      <input type="file" id="file-input" accept="image/*"/>
+    </div>
+
+    <!-- Editor (hidden until image loaded) -->
+    <div id="editor" style="display:none">
+      <div class="hint">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Зажмите и тяните по изображению, чтобы выделить область обрезки
+      </div>
+      <div class="toolbar">
+        <button class="btn btn-cyan" id="btn-crop" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 2 6 8 2 8"/><polyline points="18 22 18 16 22 16"/><path d="M2 22 6 18 18 6l4-4"/><path d="M6 18H18V6"/></svg>
+          ОБРЕЗАТЬ
+        </button>
+        <button class="btn btn-magenta" id="btn-reset-sel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          СБРОСИТЬ
+        </button>
+        <button class="btn btn-yellow" id="btn-new">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg>
+          НОВОЕ ФОТО
+        </button>
+      </div>
+
+      <div style="text-align:center">
+        <div id="canvas-wrap">
+          <canvas id="canvas"></canvas>
+          <div class="canvas-glow"></div>
+        </div>
+      </div>
+
+      <div id="info-bar">
+        <span>ИЗОБРАЖЕНИЕ: <b id="info-orig">—</b></span>
+        <span>ВЫДЕЛЕНИЕ: <b id="info-sel">НЕТ</b></span>
+      </div>
+    </div>
   </div>
 
-  <div id="canvas-wrap">
-    <canvas id="canvas"></canvas>
+  <!-- ══════════════════════════════════════════════════
+       TAB 2 — ROULETTE
+  ══════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-roulette">
+    <div class="card">
+      <div class="card-title">RANDOM ROULETTE</div>
+
+      <div class="roulette-layout">
+        <!-- Controls -->
+        <div class="roulette-controls">
+          <div>
+            <div class="items-header">// ДОБАВИТЬ ВАРИАНТ</div>
+            <div class="item-input-row">
+              <input class="input-field" id="item-input" placeholder="Введите вариант..." maxlength="32"/>
+              <button class="btn btn-cyan btn-sm" id="btn-add-item">ADD</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="items-header">// СПИСОК ВАРИАНТОВ <span id="items-count" style="color:var(--cyan)">(0)</span></div>
+            <ul id="items-list"></ul>
+            <div id="list-empty" class="spin-empty">Добавьте хотя бы 2 варианта</div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-yellow" id="btn-spin" disabled>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              КРУТИТЬ
+            </button>
+            <button class="btn btn-magenta btn-sm" id="btn-clear-items">ОЧИСТИТЬ</button>
+          </div>
+
+          <div id="winner-display" class="winner-display">
+            <div class="wlabel">// WINNER //</div>
+            <div class="wname" id="winner-name"></div>
+          </div>
+        </div>
+
+        <!-- Wheel canvas -->
+        <div class="roulette-canvas-wrap">
+          <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <canvas id="roulette-canvas" width="320" height="320"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div id="info-bar">
-    <span>Изображение: <b id="info-orig">—</b></span>
-    <span>Выделение: <b id="info-sel">нет</b></span>
-  </div>
-</div>
+  <!-- ══════════════════════════════════════════════════
+       TAB 3 — NTE CODES
+  ══════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-codes">
+    <div class="card">
+      <div class="codes-header">
+        <div class="card-title" style="margin:0">NEVERNESS TO EVERNESS // PROMO CODES</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="codes-meta">
+            <div class="source" id="codes-source">—</div>
+            <div class="updated" id="codes-updated">—</div>
+          </div>
+          <button class="btn btn-cyan btn-sm" id="btn-refresh-codes">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            REFRESH
+          </button>
+        </div>
+      </div>
 
-<!-- Preview / Download modal -->
+      <div class="hint">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Коды парсятся с eurogamer.net и обновляются каждые 5 минут. Автообновление включено.
+      </div>
+
+      <div id="codes-loading" class="codes-loading">
+        <div class="spinner"></div>
+        ЗАГРУЗКА ДАННЫХ...
+      </div>
+      <div id="codes-error" class="codes-error" style="display:none"></div>
+      <div id="codes-grid" class="codes-grid" style="display:none"></div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- ══════════ PREVIEW MODAL ══════════ -->
 <div id="preview-modal">
   <div class="modal-card">
-    <h3>Результат обрезки</h3>
-    <img id="preview-img" src="" alt="preview" />
-    <div id="preview-size" style="color:var(--muted);font-size:.82rem;"></div>
+    <div class="modal-title">// РЕЗУЛЬТАТ ОБРЕЗКИ</div>
+    <img id="preview-img" src="" alt="preview"/>
+    <div id="preview-size" class="modal-size"></div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" id="btn-modal-close">Закрыть</button>
-      <a id="btn-download" class="btn btn-success" download="crop.png">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Скачать PNG
+      <button class="btn btn-magenta btn-sm" id="btn-modal-close">ЗАКРЫТЬ</button>
+      <a id="btn-download" class="btn btn-green btn-sm" download="crop.png">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        СКАЧАТЬ PNG
       </a>
     </div>
   </div>
 </div>
 
+<!-- Copied toast -->
+<div id="copied-toast" class="copied-toast" style="display:none">// СКОПИРОВАНО //</div>
+
 <script>
-(() => {
-  // ── Elements ──────────────────────────────────────────
-  const uploadZone   = document.getElementById('upload-zone');
-  const fileInput    = document.getElementById('file-input');
-  const editor       = document.getElementById('editor');
-  const canvas       = document.getElementById('canvas');
-  const ctx          = canvas.getContext('2d');
-  const btnCrop      = document.getElementById('btn-crop');
-  const btnResetSel  = document.getElementById('btn-reset-sel');
-  const btnNew       = document.getElementById('btn-new');
-  const infoOrig     = document.getElementById('info-orig');
-  const infoSel      = document.getElementById('info-sel');
-  const modal        = document.getElementById('preview-modal');
-  const previewImg   = document.getElementById('preview-img');
-  const previewSize  = document.getElementById('preview-size');
-  const btnDownload  = document.getElementById('btn-download');
-  const btnModalClose= document.getElementById('btn-modal-close');
+/* ══════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'codes') loadCodes();
+    if (btn.dataset.tab === 'roulette') drawWheel();
+  });
+});
 
-  // ── State ─────────────────────────────────────────────
-  let img       = null;
-  let scale     = 1;          // canvas display scale vs natural size
-  let sel       = null;       // { x, y, w, h } in NATURAL image coords
-  let dragging  = false;
-  let dragStart = null;       // { x, y } in NATURAL coords
+/* ══════════════════════════════════════════════════
+   TAB 1 — IMAGE CROP
+══════════════════════════════════════════════════ */
+const uploadZone = document.getElementById('upload-zone');
+const fileInput  = document.getElementById('file-input');
+const editor     = document.getElementById('editor');
+const canvas     = document.getElementById('canvas');
+const ctx        = canvas.getContext('2d');
+const btnCrop    = document.getElementById('btn-crop');
+const btnReset   = document.getElementById('btn-reset-sel');
+const btnNew     = document.getElementById('btn-new');
+const infoOrig   = document.getElementById('info-orig');
+const infoSel    = document.getElementById('info-sel');
+const modal      = document.getElementById('preview-modal');
+const previewImg = document.getElementById('preview-img');
+const prevSize   = document.getElementById('preview-size');
+const btnDL      = document.getElementById('btn-download');
+const btnModalCl = document.getElementById('btn-modal-close');
 
-  // ── Helpers ───────────────────────────────────────────
-  const MAX_W = Math.min(window.innerWidth - 64, 900);
-  const MAX_H = window.innerHeight * 0.72;
+let img=null, scale=1, sel=null, dragging=false, dragStart=null;
 
-  function loadImage(file) {
-    if (!file || !file.type.startsWith('image/')) return;
-    const url = URL.createObjectURL(file);
-    const i = new Image();
-    i.onload = () => {
-      img = i;
-      sel = null;
+const MAX_W = Math.min(window.innerWidth - 80, 860);
+const MAX_H = window.innerHeight * 0.68;
 
-      // Fit into max dimensions keeping aspect ratio
-      let dw = img.naturalWidth, dh = img.naturalHeight;
-      if (dw > MAX_W) { dh = dh * MAX_W / dw; dw = MAX_W; }
-      if (dh > MAX_H) { dw = dw * MAX_H / dh; dh = MAX_H; }
-      dw = Math.round(dw); dh = Math.round(dh);
-      scale = img.naturalWidth / dw;
+function loadImage(file){
+  if(!file||!file.type.startsWith('image/'))return;
+  const url=URL.createObjectURL(file);
+  const i=new Image();
+  i.onload=()=>{
+    img=i; sel=null;
+    let dw=img.naturalWidth, dh=img.naturalHeight;
+    if(dw>MAX_W){dh=dh*MAX_W/dw; dw=MAX_W;}
+    if(dh>MAX_H){dw=dw*MAX_H/dh; dh=MAX_H;}
+    dw=Math.round(dw); dh=Math.round(dh);
+    scale=img.naturalWidth/dw;
+    canvas.width=dw; canvas.height=dh;
+    draw(); infoOrig.textContent=img.naturalWidth+'×'+img.naturalHeight+'px';
+    infoSel.textContent='НЕТ'; btnCrop.disabled=true;
+    uploadZone.style.display='none'; editor.style.display='block';
+    URL.revokeObjectURL(url);
+  };
+  i.src=url;
+}
 
-      canvas.width  = dw;
-      canvas.height = dh;
+function canvasCoord(e){
+  const r=canvas.getBoundingClientRect();
+  return{
+    x:Math.round((e.clientX-r.left)*(canvas.width/r.width)*scale),
+    y:Math.round((e.clientY-r.top)*(canvas.height/r.height)*scale)
+  };
+}
 
-      draw();
-      infoOrig.textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
-      infoSel.textContent  = 'нет';
-      btnCrop.disabled = true;
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  if(!sel||sel.w<2||sel.h<2)return;
+  const sx=sel.x/scale, sy=sel.y/scale, sw=sel.w/scale, sh=sel.h/scale;
+  ctx.fillStyle='rgba(0,0,0,.55)';
+  ctx.fillRect(0,0,canvas.width,sy);
+  ctx.fillRect(0,sy,sx,sh);
+  ctx.fillRect(sx+sw,sy,canvas.width-sx-sw,sh);
+  ctx.fillRect(0,sy+sh,canvas.width,canvas.height-sy-sh);
+  ctx.strokeStyle='#00e5ff'; ctx.lineWidth=2; ctx.setLineDash([]);
+  ctx.strokeRect(sx,sy,sw,sh);
+  // Rule of thirds
+  ctx.strokeStyle='rgba(0,229,255,.25)'; ctx.lineWidth=1;
+  for(let i=1;i<3;i++){
+    ctx.beginPath();ctx.moveTo(sx+sw*i/3,sy);ctx.lineTo(sx+sw*i/3,sy+sh);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(sx,sy+sh*i/3);ctx.lineTo(sx+sw,sy+sh*i/3);ctx.stroke();
+  }
+  // Corner handles
+  [[sx,sy],[sx+sw,sy],[sx,sy+sh],[sx+sw,sy+sh]].forEach(([cx2,cy2])=>{
+    ctx.beginPath();ctx.arc(cx2,cy2,5,0,Math.PI*2);
+    ctx.fillStyle='#00e5ff';ctx.fill();
+  });
+  // Label
+  const lbl=Math.round(sel.w)+'×'+Math.round(sel.h);
+  ctx.font='bold 11px Share Tech Mono,monospace';
+  const tw=ctx.measureText(lbl).width;
+  ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(sx,sy-20,tw+12,18);
+  ctx.fillStyle='#00e5ff';ctx.fillText(lbl,sx+6,sy-6);
+}
 
-      uploadZone.style.display = 'none';
-      editor.style.display = 'flex';
-      URL.revokeObjectURL(url);
-    };
-    i.src = url;
+canvas.addEventListener('mousedown',e=>{if(!img)return;dragging=true;dragStart=canvasCoord(e);sel=null;draw();});
+canvas.addEventListener('mousemove',e=>{
+  if(!dragging)return;
+  const c=canvasCoord(e);
+  sel={
+    x:Math.max(0,Math.min(dragStart.x,c.x)),
+    y:Math.max(0,Math.min(dragStart.y,c.y)),
+    w:Math.abs(c.x-dragStart.x),
+    h:Math.abs(c.y-dragStart.y)
+  };
+  sel.w=Math.min(sel.w,img.naturalWidth-sel.x);
+  sel.h=Math.min(sel.h,img.naturalHeight-sel.y);
+  draw();
+  infoSel.textContent=Math.round(sel.w)+'×'+Math.round(sel.h)+'px';
+  btnCrop.disabled=sel.w<2||sel.h<2;
+});
+window.addEventListener('mouseup',()=>{
+  if(!dragging)return;dragging=false;
+  if(!sel||sel.w<2||sel.h<2){sel=null;draw();infoSel.textContent='НЕТ';btnCrop.disabled=true;}
+});
+
+// Touch
+function touchPt(e){const t=e.touches[0]||e.changedTouches[0];return canvasCoord(t);}
+canvas.addEventListener('touchstart',e=>{e.preventDefault();dragging=true;dragStart=touchPt(e);sel=null;draw();},{passive:false});
+canvas.addEventListener('touchmove',e=>{
+  e.preventDefault();const c=touchPt(e);
+  sel={x:Math.max(0,Math.min(dragStart.x,c.x)),y:Math.max(0,Math.min(dragStart.y,c.y)),w:Math.abs(c.x-dragStart.x),h:Math.abs(c.y-dragStart.y)};
+  draw();infoSel.textContent=Math.round(sel.w)+'×'+Math.round(sel.h)+'px';btnCrop.disabled=sel.w<2||sel.h<2;
+},{passive:false});
+canvas.addEventListener('touchend',e=>{e.preventDefault();dragging=false;if(!sel||sel.w<2||sel.h<2){sel=null;draw();infoSel.textContent='НЕТ';btnCrop.disabled=true;}},{passive:false});
+
+btnCrop.addEventListener('click',()=>{
+  if(!sel||sel.w<2)return;
+  const off=document.createElement('canvas');
+  off.width=Math.round(sel.w);off.height=Math.round(sel.h);
+  off.getContext('2d').drawImage(img,sel.x,sel.y,sel.w,sel.h,0,0,off.width,off.height);
+  const url=off.toDataURL('image/png');
+  previewImg.src=url;
+  prevSize.textContent='РАЗМЕР: '+off.width+'×'+off.height+' PX';
+  btnDL.href=url; btnDL.download='crop_'+off.width+'x'+off.height+'.png';
+  modal.classList.add('open');
+});
+btnReset.addEventListener('click',()=>{sel=null;draw();infoSel.textContent='НЕТ';btnCrop.disabled=true;});
+btnNew.addEventListener('click',()=>{img=null;sel=null;editor.style.display='none';uploadZone.style.display='';fileInput.value='';});
+btnModalCl.addEventListener('click',()=>modal.classList.remove('open'));
+modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open');});
+
+fileInput.addEventListener('change',e=>loadImage(e.target.files[0]));
+uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('drag-over');});
+uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('drag-over');loadImage(e.dataTransfer.files[0]);});
+uploadZone.addEventListener('click',e=>{if(e.target.tagName!=='LABEL'&&e.target.tagName!=='INPUT')fileInput.click();});
+document.addEventListener('paste',e=>{const it=[...e.clipboardData.items].find(i=>i.type.startsWith('image/'));if(it)loadImage(it.getAsFile());});
+
+/* ══════════════════════════════════════════════════
+   TAB 2 — ROULETTE
+══════════════════════════════════════════════════ */
+const SEG_COLORS=['#ff0090','#00e5ff','#ffe600','#00ff9f','#ff6600','#b400ff','#ff3333','#00ccff','#ffcc00','#ff0055','#33ff99','#cc00ff'];
+let rItems=[], rAngle=0, rSpinning=false;
+
+const rCanvas   = document.getElementById('roulette-canvas');
+const rCtx      = rCanvas.getContext('2d');
+const itemInput = document.getElementById('item-input');
+const btnAdd    = document.getElementById('btn-add-item');
+const itemsList = document.getElementById('items-list');
+const listEmpty = document.getElementById('list-empty');
+const btnSpin   = document.getElementById('btn-spin');
+const btnClear  = document.getElementById('btn-clear-items');
+const winnerDiv = document.getElementById('winner-display');
+const winnerName= document.getElementById('winner-name');
+const itemsCount= document.getElementById('items-count');
+
+function updateItemsList(){
+  itemsList.innerHTML='';
+  rItems.forEach((item,i)=>{
+    const li=document.createElement('li');
+    li.className='item-chip';
+    li.innerHTML=`
+      <span class="item-chip-color" style="background:${SEG_COLORS[i%SEG_COLORS.length]}"></span>
+      <span class="item-chip-label">${escHtml(item)}</span>
+      <button class="item-chip-del" data-idx="${i}" title="Удалить">×</button>`;
+    itemsList.appendChild(li);
+  });
+  listEmpty.style.display=rItems.length===0?'block':'none';
+  btnSpin.disabled=rItems.length<2||rSpinning;
+  itemsCount.textContent='('+rItems.length+')';
+  drawWheel();
+}
+
+itemsList.addEventListener('click',e=>{
+  if(e.target.classList.contains('item-chip-del')){
+    rItems.splice(+e.target.dataset.idx,1);
+    winnerDiv.style.display='none';
+    updateItemsList();
+  }
+});
+
+function addItem(){
+  const v=itemInput.value.trim();
+  if(!v)return;
+  rItems.push(v); itemInput.value='';
+  winnerDiv.style.display='none';
+  updateItemsList();
+}
+btnAdd.addEventListener('click',addItem);
+itemInput.addEventListener('keydown',e=>{if(e.key==='Enter')addItem();});
+btnClear.addEventListener('click',()=>{rItems=[];winnerDiv.style.display='none';updateItemsList();});
+
+function drawWheel(rot){
+  const cx=rCanvas.width/2, cy=rCanvas.height/2;
+  const r=Math.min(cx,cy)-20;
+  const angle=rot!==undefined?rot:rAngle;
+  rCtx.clearRect(0,0,rCanvas.width,rCanvas.height);
+
+  if(rItems.length===0){
+    // Empty state
+    rCtx.beginPath();rCtx.arc(cx,cy,r,0,Math.PI*2);
+    rCtx.strokeStyle='#1c1c40';rCtx.lineWidth=2;rCtx.stroke();
+    rCtx.fillStyle='#3a4a6a';rCtx.font='13px Share Tech Mono,monospace';
+    rCtx.textAlign='center';rCtx.fillText('ДОБАВЬТЕ ВАРИАНТЫ',cx,cy);
+    return;
   }
 
-  function canvasCoord(e) {
-    const r   = canvas.getBoundingClientRect();
-    const cx  = (e.clientX - r.left)  * (canvas.width  / r.width);
-    const cy  = (e.clientY - r.top)   * (canvas.height / r.height);
-    return { x: Math.round(cx * scale), y: Math.round(cy * scale) };
+  const n=rItems.length;
+  const seg=Math.PI*2/n;
+
+  for(let i=0;i<n;i++){
+    const start=angle+i*seg;
+    const end=start+seg;
+    // Segment fill
+    rCtx.beginPath();rCtx.moveTo(cx,cy);rCtx.arc(cx,cy,r,start,end);rCtx.closePath();
+    rCtx.fillStyle=SEG_COLORS[i%SEG_COLORS.length];rCtx.fill();
+    // Segment border
+    rCtx.strokeStyle='rgba(0,0,0,.4)';rCtx.lineWidth=1.5;rCtx.stroke();
+    // Neon edge glow
+    rCtx.beginPath();rCtx.moveTo(cx,cy);rCtx.arc(cx,cy,r,start,end);rCtx.closePath();
+    rCtx.strokeStyle='rgba(255,255,255,.08)';rCtx.lineWidth=1;rCtx.stroke();
+    // Text
+    rCtx.save();
+    rCtx.translate(cx,cy);rCtx.rotate(start+seg/2);
+    rCtx.textAlign='right';
+    const maxW=r-30;
+    let label=rItems[i];
+    rCtx.font='bold 12px Share Tech Mono,monospace';
+    while(rCtx.measureText(label).width>maxW&&label.length>1)label=label.slice(0,-1)+'…';
+    rCtx.shadowColor=SEG_COLORS[i%SEG_COLORS.length];rCtx.shadowBlur=6;
+    rCtx.fillStyle='#fff';rCtx.fillText(label,r-10,5);
+    rCtx.restore();
   }
 
-  function normalise(x, y, x2, y2) {
-    return {
-      x: Math.max(0, Math.min(x, x2)),
-      y: Math.max(0, Math.min(y, y2)),
-      w: Math.abs(x2 - x),
-      h: Math.abs(y2 - y),
-    };
-  }
+  // Outer ring
+  rCtx.beginPath();rCtx.arc(cx,cy,r,0,Math.PI*2);
+  rCtx.strokeStyle='rgba(0,229,255,.5)';rCtx.lineWidth=2;
+  rCtx.shadowColor='#00e5ff';rCtx.shadowBlur=12;rCtx.stroke();
+  rCtx.shadowBlur=0;
 
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  // Center hub
+  rCtx.beginPath();rCtx.arc(cx,cy,18,0,Math.PI*2);
+  rCtx.fillStyle='#050509';rCtx.fill();
+  rCtx.strokeStyle='#00e5ff';rCtx.lineWidth=2;
+  rCtx.shadowColor='#00e5ff';rCtx.shadowBlur=10;rCtx.stroke();
+  rCtx.shadowBlur=0;
+}
 
-    if (!sel || sel.w < 2 || sel.h < 2) return;
+btnSpin.addEventListener('click',()=>{
+  if(rSpinning||rItems.length<2)return;
+  rSpinning=true;btnSpin.disabled=true;winnerDiv.style.display='none';
 
-    // Darken outside selection
-    ctx.fillStyle = 'rgba(0,0,0,.55)';
-    const sx = sel.x / scale, sy = sel.y / scale;
-    const sw = sel.w / scale, sh = sel.h / scale;
+  const extraSpins=(4+Math.random()*4)*Math.PI*2;
+  const n=rItems.length;
+  const seg=Math.PI*2/n;
+  const winnerIdx=Math.floor(Math.random()*n);
+  // Target: pointer (at top = -PI/2 from center) lands on middle of winner segment
+  const targetLocalAngle=(-Math.PI/2)-(winnerIdx*seg+seg/2);
+  const fullAngle=rAngle+extraSpins+(targetLocalAngle-((rAngle)%(Math.PI*2)));
+  const duration=4500+Math.random()*1000;
+  const startT=performance.now();
+  const startA=rAngle;
 
-    ctx.fillRect(0,  0,  canvas.width, sy);
-    ctx.fillRect(0,  sy, sx, sh);
-    ctx.fillRect(sx + sw, sy, canvas.width - sx - sw, sh);
-    ctx.fillRect(0,  sy + sh, canvas.width, canvas.height - sy - sh);
-
-    // Selection border
-    ctx.strokeStyle = '#a78bfa';
-    ctx.lineWidth   = 2;
-    ctx.setLineDash([]);
-    ctx.strokeRect(sx, sy, sw, sh);
-
-    // Rule-of-thirds grid
-    ctx.strokeStyle = 'rgba(167,139,250,.35)';
-    ctx.lineWidth   = 1;
-    for (let i = 1; i < 3; i++) {
-      ctx.beginPath(); ctx.moveTo(sx + sw * i/3, sy); ctx.lineTo(sx + sw * i/3, sy + sh); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(sx, sy + sh * i/3); ctx.lineTo(sx + sw, sy + sh * i/3); ctx.stroke();
+  function animate(t){
+    const elapsed=t-startT;
+    const progress=Math.min(elapsed/duration,1);
+    // easeOutQuint
+    const ease=1-Math.pow(1-progress,5);
+    rAngle=startA+(fullAngle-startA)*ease;
+    drawWheel(rAngle);
+    if(progress<1){requestAnimationFrame(animate);}
+    else{
+      rAngle=fullAngle;
+      rSpinning=false;btnSpin.disabled=false;
+      // Determine actual winner
+      const norm=(((-rAngle-Math.PI/2)%(Math.PI*2))+Math.PI*4)%(Math.PI*2);
+      const idx=Math.floor(norm/seg)%n;
+      winnerName.textContent=rItems[idx]||rItems[winnerIdx];
+      winnerDiv.style.display='block';
     }
+  }
+  requestAnimationFrame(animate);
+});
 
-    // Corner handles
-    const hs = 7;
-    const corners = [[sx, sy],[sx+sw, sy],[sx, sy+sh],[sx+sw, sy+sh]];
-    ctx.fillStyle = '#fff';
-    corners.forEach(([cx2, cy2]) => {
-      ctx.beginPath();
-      ctx.arc(cx2, cy2, hs/2, 0, Math.PI*2);
-      ctx.fill();
-      ctx.strokeStyle = '#a78bfa';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+// Init
+updateItemsList();
+
+/* ══════════════════════════════════════════════════
+   TAB 3 — NTE CODES
+══════════════════════════════════════════════════ */
+const codesLoading = document.getElementById('codes-loading');
+const codesError   = document.getElementById('codes-error');
+const codesGrid    = document.getElementById('codes-grid');
+const codesSource  = document.getElementById('codes-source');
+const codesUpdated = document.getElementById('codes-updated');
+const btnRefresh   = document.getElementById('btn-refresh-codes');
+const toastEl      = document.getElementById('copied-toast');
+
+let codesLoaded=false, codesRefreshTimer=null;
+
+function showToast(msg='// СКОПИРОВАНО //'){
+  toastEl.textContent=msg;toastEl.style.display='block';
+  clearTimeout(toastEl._t);toastEl._t=setTimeout(()=>toastEl.style.display='none',2000);
+}
+
+async function loadCodes(force=false){
+  if(codesLoaded&&!force)return;
+  codesLoading.style.display='flex';
+  codesError.style.display='none';
+  codesGrid.style.display='none';
+  try{
+    const res=await fetch('/api/codes');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    renderCodes(data);
+    codesLoaded=true;
+    // Auto-refresh every 5 min
+    clearTimeout(codesRefreshTimer);
+    codesRefreshTimer=setTimeout(()=>{codesLoaded=false;},5*60*1000);
+  }catch(e){
+    codesLoading.style.display='none';
+    codesError.style.display='block';
+    codesError.textContent='[ ERROR ] Не удалось загрузить коды: '+e.message;
+  }
+}
+
+function renderCodes(data){
+  codesLoading.style.display='none';
+  const src=data.source||'unknown';
+  codesSource.textContent='SOURCE: '+(src==='fallback'?'BUILT-IN FALLBACK':src.replace('https://www.','').split('/')[0].toUpperCase());
+  const d=new Date(data.updatedAt);
+  codesUpdated.textContent='UPDATED: '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  codesGrid.innerHTML='';
+  if(!data.codes||data.codes.length===0){
+    codesGrid.innerHTML='<div class="codes-error">Коды не найдены</div>';
+  }else{
+    data.codes.forEach(c=>{
+      const card=document.createElement('div');
+      card.className='code-card'+(c.isNew?' is-new':'');
+      card.innerHTML=`
+        <div class="code-card-code">${escHtml(c.code)}</div>
+        <div class="code-card-reward">${escHtml(c.reward)}</div>
+        <div class="code-card-actions">
+          <button class="btn btn-cyan btn-sm copy-btn" data-code="${escHtml(c.code)}">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            КОПИРОВАТЬ
+          </button>
+        </div>`;
+      codesGrid.appendChild(card);
     });
-
-    // Size label
-    const label = `${Math.round(sel.w)} × ${Math.round(sel.h)}`;
-    ctx.font = 'bold 12px Segoe UI, system-ui, sans-serif';
-    ctx.fillStyle = 'rgba(0,0,0,.65)';
-    const tw = ctx.measureText(label).width;
-    ctx.fillRect(sx, sy - 22, tw + 12, 20);
-    ctx.fillStyle = '#e8eaf6';
-    ctx.fillText(label, sx + 6, sy - 7);
   }
-
-  // ── Mouse events ──────────────────────────────────────
-  canvas.addEventListener('mousedown', e => {
-    if (!img) return;
-    dragging  = true;
-    dragStart = canvasCoord(e);
-    sel       = null;
-    draw();
+  codesGrid.style.display='grid';
+  codesGrid.addEventListener('click',e=>{
+    const btn=e.target.closest('.copy-btn');
+    if(!btn)return;
+    navigator.clipboard.writeText(btn.dataset.code).then(()=>showToast('// СКОПИРОВАНО: '+btn.dataset.code+' //')).catch(()=>{});
   });
+}
 
-  canvas.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const cur = canvasCoord(e);
-    const nx  = Math.min(dragStart.x, cur.x);
-    const ny  = Math.min(dragStart.y, cur.y);
-    const nw  = Math.abs(cur.x - dragStart.x);
-    const nh  = Math.abs(cur.y - dragStart.y);
-    sel = {
-      x: Math.max(0, nx),
-      y: Math.max(0, ny),
-      w: Math.min(nw, img.naturalWidth  - Math.max(0, nx)),
-      h: Math.min(nh, img.naturalHeight - Math.max(0, ny)),
-    };
-    draw();
-    infoSel.textContent = `${Math.round(sel.w)} × ${Math.round(sel.h)} px`;
-    btnCrop.disabled = sel.w < 2 || sel.h < 2;
-  });
+btnRefresh.addEventListener('click',()=>{codesLoaded=false;loadCodes(true);});
 
-  window.addEventListener('mouseup', () => {
-    if (!dragging) return;
-    dragging = false;
-    if (!sel || sel.w < 2 || sel.h < 2) {
-      sel = null; draw();
-      infoSel.textContent = 'нет';
-      btnCrop.disabled = true;
-    }
-  });
-
-  // Touch support
-  function touchCoord(e) {
-    const t = e.touches[0] || e.changedTouches[0];
-    return canvasCoord(t);
-  }
-  canvas.addEventListener('touchstart', e => { e.preventDefault(); dragging = true; dragStart = touchCoord(e); sel = null; draw(); }, { passive: false });
-  canvas.addEventListener('touchmove',  e => { e.preventDefault(); const cur = touchCoord(e); const nx = Math.min(dragStart.x, cur.x); const ny = Math.min(dragStart.y, cur.y); sel = { x: Math.max(0, nx), y: Math.max(0, ny), w: Math.abs(cur.x - dragStart.x), h: Math.abs(cur.y - dragStart.y) }; draw(); infoSel.textContent = `${Math.round(sel.w)} × ${Math.round(sel.h)} px`; btnCrop.disabled = sel.w < 2 || sel.h < 2; }, { passive: false });
-  canvas.addEventListener('touchend',   e => { e.preventDefault(); dragging = false; if (!sel || sel.w < 2 || sel.h < 2) { sel = null; draw(); infoSel.textContent = 'нет'; btnCrop.disabled = true; } }, { passive: false });
-
-  // ── Crop ──────────────────────────────────────────────
-  btnCrop.addEventListener('click', () => {
-    if (!sel || sel.w < 2 || sel.h < 2) return;
-    const offscreen = document.createElement('canvas');
-    offscreen.width  = Math.round(sel.w);
-    offscreen.height = Math.round(sel.h);
-    const oc = offscreen.getContext('2d');
-    oc.drawImage(img, sel.x, sel.y, sel.w, sel.h, 0, 0, offscreen.width, offscreen.height);
-    const dataUrl = offscreen.toDataURL('image/png');
-    previewImg.src  = dataUrl;
-    previewSize.textContent = `Размер: ${offscreen.width} × ${offscreen.height} px`;
-    btnDownload.href = dataUrl;
-    btnDownload.download = `crop_${offscreen.width}x${offscreen.height}.png`;
-    modal.classList.add('open');
-  });
-
-  btnResetSel.addEventListener('click', () => {
-    sel = null; draw();
-    infoSel.textContent = 'нет';
-    btnCrop.disabled = true;
-  });
-
-  btnNew.addEventListener('click', () => {
-    img = null; sel = null;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    editor.style.display = 'none';
-    uploadZone.style.display = '';
-    fileInput.value = '';
-  });
-
-  btnModalClose.addEventListener('click', () => modal.classList.remove('open'));
-  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
-
-  // ── Upload zone ───────────────────────────────────────
-  fileInput.addEventListener('change', e => loadImage(e.target.files[0]));
-
-  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadZone.classList.remove('drag-over');
-    loadImage(e.dataTransfer.files[0]);
-  });
-  uploadZone.addEventListener('click', e => {
-    if (e.target.tagName !== 'LABEL' && e.target.tagName !== 'INPUT') fileInput.click();
-  });
-
-  // ── Paste from clipboard ──────────────────────────────
-  document.addEventListener('paste', e => {
-    const item = [...e.clipboardData.items].find(i => i.type.startsWith('image/'));
-    if (item) loadImage(item.getAsFile());
-  });
-})();
+/* ══════════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════════ */
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>

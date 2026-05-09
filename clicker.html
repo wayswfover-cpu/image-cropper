@@ -410,7 +410,7 @@ var UPG=[
 ];
 
 /* ========== STATE ========== */
-var state={level:1,totalClicks:0,clicks:0,clickPower:0,autoClick:0,crit:0,multi:0};
+var state={level:1,totalClicks:0,spendable:0,clickPower:0,autoClick:0,crit:0,multi:0};
 
 /* ========== SOUND ========== */
 var lastClickSoundTime=0;
@@ -437,7 +437,7 @@ function load(){
     if(!s)return;
     state.level=s.level||1;
     state.totalClicks=s.totalClicks||0;
-    state.clicks=s.clicks||0;
+    state.spendable=s.spendable||0;
     state.clickPower=s.clickPower||0;
     state.autoClick=s.autoClick||0;
     state.crit=s.crit||0;
@@ -457,7 +457,7 @@ function doClick(){
   var cpc=getCPC();
   var crit=(state.crit>0)&&(Math.random()<state.crit*0.1);
   var g=crit?cpc*2:cpc;
-  state.clicks+=g;
+  state.spendable+=g;
   state.totalClicks+=g;
   spawnParticle('+'+g+(crit?' CRIT':''));
   playClickSound();
@@ -514,7 +514,7 @@ function showLevelOverlay(n,name,isBoss){
 function autoTick(){
   var s=getCPS();
   if(s<=0)return;
-  state.clicks+=s;
+  state.spendable+=s;
   state.totalClicks+=s;
   checkLevel();
   updateUI();
@@ -525,8 +525,8 @@ function buyUpg(id){
   var u=UPG.find(function(x){return x.id===id});
   var owned=state[id]||0;
   var cost=Math.floor(u.baseCost*Math.pow(u.costMult,owned));
-  if(state.clicks<cost||owned>=u.max)return;
-  state.clicks-=cost;
+   if(state.spendable<cost||owned>=u.max)return;
+  state.spendable-=cost;
   state[id]=(state[id]||0)+1;
   renderUpg();
   updateUI();
@@ -539,7 +539,7 @@ function renderUpg(){
   UPG.forEach(function(u){
     var owned=state[u.id]||0;
     var cost=Math.floor(u.baseCost*Math.pow(u.costMult,owned));
-    var can=(state.clicks||0)>=cost&&owned<u.max;
+    var can=state.spendable||0>=cost&&owned<u.max;
     var card=document.createElement('div');
     card.className='cl-upg-card'+(owned>=u.max?' disabled':'');
     card.innerHTML='<div class="cl-upg-card-info"><div class="cl-upg-card-name">'+u.name+'</div><div class="cl-upg-card-desc">'+u.effectDesc+'</div><div class="cl-upg-card-owned">КУПЛЕНО: '+owned+(u.max<99?' / '+u.max:'')+'</div></div><button class="cl-btn-buy" data-id="'+u.id+'" '+(can?'':'disabled')+'>'+(owned>=u.max?'MAX':fmt(cost))+'</button>';
@@ -579,7 +579,7 @@ function updateUI(){
 
   // Spendable points display
   var spEl=document.getElementById('cl-spendable');
-  if(spEl) spEl.textContent=fmt(state.clicks||0);
+  if(spEl) spEl.textContent=fmtstate.spendable||0;
 
   // Level upgrade button
   var n=LEVELS[state.level];
@@ -627,7 +627,7 @@ document.getElementById('cl-core').addEventListener('touchstart',function(e){
 document.getElementById('cl-btn-level').addEventListener('click',function(){checkLevel();updateUI()});
 document.getElementById('cl-btn-reset').addEventListener('click',function(){
   if(!confirm('Сбросить весь прогресс кликера?'))return;
-  state={level:1,totalClicks:0,clicks:0,clickPower:0,autoClick:0,crit:0,multi:0};
+  state={level:1,totalClicks:0,spendable:0,clickPower:0,autoClick:0,crit:0,multi:0};
   localStorage.removeItem('cl_state_v2');
   drawCoreImg(1);renderUpg();updateUI();
 });
@@ -1028,7 +1028,7 @@ function endBoss(victory){
     t.textContent='ПОБЕДА';t.className='boss-end-title victory';
     s.textContent='ЛЕХА КИБЕРТРОН уничтожен!';
     document.getElementById('boss-ent').classList.add('boss-dying');
-    state.level=6;state.totalClicks=0;state.clicks=0;
+    state.level=6;state.totalClicks=0;state.spendable=0;
     save();
     setTimeout(showVictoryScreen,900);
   } else {

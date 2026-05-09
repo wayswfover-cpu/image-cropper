@@ -361,7 +361,7 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
         <div class="cl-stat"><div class="cl-stat-val" id="cl-total">0</div><div class="cl-stat-key">КЛИКОВ ВСЕГО</div></div>
         <div class="cl-stat"><div class="cl-stat-val" id="cl-cps">0</div><div class="cl-stat-key">В СЕКУНДУ</div></div>
         <div class="cl-stat"><div class="cl-stat-val" id="cl-cpc">1</div><div class="cl-stat-key">ЗА КЛИК</div></div>
-        <div class="cl-stat"><div class="cl-stat-val" id="cl-spendable">0</div><div class="cl-stat-key">ОЧКИ</div></div>
+        <div class="cl-stat"><div class="cl-stat-val" id="cl-spendable">0</div><div class="cl-stat-key">МОНЕТЫ</div></div>
       </div>
     </div>
 
@@ -580,10 +580,10 @@ function updateUI(){
   document.getElementById('cl-level-tag').textContent='LVL '+state.level;
   var prev=i>0?LEVELS[i-1].clicks:0;
   var need=l.clicks-prev;
-  var have=state.totalClicks-prev;
+  var have=state.spendable||0;
   var pct=Math.min(100,(have/need)*100);
   document.getElementById('cl-progress-fill').style.width=pct+'%';
-  document.getElementById('cl-progress-text').textContent=have+' / '+need;
+  document.getElementById('cl-progress-text').textContent=fmt(have)+' / '+fmt(need);
   document.getElementById('cl-total').textContent=fmt(state.totalClicks);
   document.getElementById('cl-cps').textContent=fmt(getCPS());
   document.getElementById('cl-cpc').textContent=fmt(getCPC());
@@ -592,8 +592,7 @@ function updateUI(){
   document.getElementById('cl-auto-details').textContent=ac>0?'+'+ac+' клик/сек':'Нет автокликеров';
 
   // Spendable points display
-  var spEl=document.getElementById('cl-spendable');
-  if(spEl) spEl.textContent=fmt(state.spendable||0);
+  document.getElementById('cl-spendable').textContent=fmt(state.spendable||0);
 
   // Level upgrade button
   var n=LEVELS[state.level];
@@ -601,8 +600,8 @@ function updateUI(){
   if(n){
     document.getElementById('cl-upg-level-name').textContent='СЛЕДУЮЩИЙ УРОВЕНЬ';
     document.getElementById('cl-upg-level-desc').textContent=l.name+' -> '+n.name;
-    document.getElementById('cl-upg-level-cost').textContent=n.clicks;
-    btnL.disabled=state.totalClicks<n.clicks;
+    document.getElementById('cl-upg-level-cost').textContent=fmt(n.clicks);
+    btnL.disabled=(state.spendable||0)<n.clicks;
   } else {
     document.getElementById('cl-upg-level-name').textContent='МАКСИМУМ ДОСТИГНУТ';
     document.getElementById('cl-upg-level-desc').textContent='Все уровни пройдены!';

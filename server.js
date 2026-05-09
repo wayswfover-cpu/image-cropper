@@ -62,8 +62,8 @@ app.use('/api/', apiLimiter);
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: false, limit: '100kb' }));
 
-// ── Static files ───────────────────────────────────────
-app.use(express.static(path.join(__dirname)));
+// ── Static files (no cache) ───────────────────────────
+app.use(express.static(path.join(__dirname), {maxAge: 0, etag: false}));
 
 // ── Cache ──────────────────────────────────────────────
 let codesCache = null;

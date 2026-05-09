@@ -579,12 +579,13 @@ function fmt(n){
 function updateUI(){
   var i=state.level-1;
   var l=LEVELS[i];
+  var nextLvl=LEVELS[state.level];
   document.getElementById('cl-level').textContent=state.level;
   document.getElementById('cl-core-name').textContent=l.name;
   document.getElementById('cl-level-tag').textContent='LVL '+state.level;
-  var need=l.clicks;
+  var need=nextLvl?nextLvl.clicks:0;
   var have=Math.min((state.progress||0),need);
-  var pct=Math.min(100,(have/need)*100);
+  var pct=need>0?Math.min(100,(have/need)*100):0;
   document.getElementById('cl-progress-fill').style.width=pct+'%';
   document.getElementById('cl-progress-text').textContent=have+' / '+need;
   document.getElementById('cl-total').textContent=fmt(state.totalClicks);

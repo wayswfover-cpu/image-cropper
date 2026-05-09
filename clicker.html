@@ -97,6 +97,10 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
 .cl-upg-card{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;transition:border-color .2s;cursor:pointer}
 .cl-upg-card:hover{border-color:var(--cyan)}
 .cl-upg-card.disabled{border-color:var(--border);opacity:.4;cursor:not-allowed}
+.cl-upg-card.can-afford{border-color:var(--green);box-shadow:0 0 8px rgba(0,255,159,.25)}
+.cl-upg-card.can-afford:hover{border-color:var(--green);box-shadow:0 0 14px rgba(0,255,159,.4)}
+.cl-btn-buy.can-afford{border-color:var(--green);color:var(--green);box-shadow:0 0 8px rgba(0,255,159,.3);animation:canAffordPulse 1.5s ease infinite}
+@keyframes canAffordPulse{0%,100%{box-shadow:0 0 8px rgba(0,255,159,.3)}50%{box-shadow:0 0 16px rgba(0,255,159,.6)}}
 .cl-upg-card-icon{font-size:1.2rem;flex-shrink:0;width:28px;text-align:center}
 .cl-upg-card-info{flex:1;min-width:0}
 .cl-upg-card-name{font-family:var(--font-head);font-size:.65rem;letter-spacing:1px;color:var(--text)}
@@ -565,8 +569,8 @@ function renderUpg(){
     var cost=Math.floor(u.baseCost*Math.pow(u.costMult,owned));
     var can=state.spendable||0>=cost&&owned<u.max;
     var card=document.createElement('div');
-    card.className='cl-upg-card'+(owned>=u.max?' disabled':'');
-    card.innerHTML='<div class="cl-upg-card-info"><div class="cl-upg-card-name">'+u.name+'</div><div class="cl-upg-card-desc">'+u.effectDesc+'</div><div class="cl-upg-card-owned">КУПЛЕНО: '+owned+(u.max<99?' / '+u.max:'')+'</div></div><button class="cl-btn-buy" data-id="'+u.id+'" '+(can?'':'disabled')+'>'+(owned>=u.max?'MAX':fmt(cost))+'</button>';
+    card.className='cl-upg-card'+(owned>=u.max?' disabled':'')+(can&&owned<u.max?' can-afford':'');
+    card.innerHTML='<div class="cl-upg-card-info"><div class="cl-upg-card-name">'+u.name+'</div><div class="cl-upg-card-desc">'+u.effectDesc+'</div><div class="cl-upg-card-owned">КУПЛЕНО: '+owned+(u.max<99?' / '+u.max:'')+'</div></div><button class="cl-btn-buy'+(can&&owned<u.max?' can-afford':'')+'" data-id="'+u.id+'" '+(can?'':'disabled')+'>'+(owned>=u.max?'MAX':fmt(cost))+'</button>';
     list.appendChild(card);
   });
   list.onclick=function(e){

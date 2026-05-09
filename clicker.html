@@ -393,7 +393,7 @@ var state={level:1,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};
 var lastClickSoundTime=0;
 function playClickSound(){
   var now=Date.now();
-  if(now-lastClickSoundTime<60) return;
+  if(now-lastClickSoundTime<1000) return;
   lastClickSoundTime=now;
   var s=new Audio('sounds/1.mp3');
   s.volume=0.5;

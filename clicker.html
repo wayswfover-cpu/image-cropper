@@ -391,10 +391,13 @@ var state={level:1,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};
 
 /* ========== SOUND ========== */
 var clickSound=new Audio('sounds/1.mp3');
-clickSound.volume=0.4;
+clickSound.volume=0.5;
+clickSound.preload='auto';
 function playClickSound(){
-  clickSound.currentTime=0;
-  clickSound.play().catch(function(){});
+  if(clickSound.readyState<2) return;
+  var s=new Audio('sounds/1.mp3');
+  s.volume=0.5;
+  s.play().catch(function(){});
 }
 
 function save(){

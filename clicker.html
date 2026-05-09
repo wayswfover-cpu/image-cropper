@@ -583,7 +583,7 @@ function updateUI(){
 
   // Spendable points display
   var spEl=document.getElementById('cl-spendable');
-  if(spEl) spEl.textContent=fmtstate.spendable||0;
+  if(spEl) spEl.textContent=fmt(state.spendable||0);
 
   // Level upgrade button
   var n=LEVELS[state.level];

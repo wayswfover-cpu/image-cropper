@@ -683,7 +683,7 @@ function closeBossScreen(returnToClicker){
 function initBossFight(){
   if(boss&&boss.alive)return;
   boss={
-    hp:500,maxHp:500,
+    hp:1500,maxHp:1500,
     x:0,y:0,targetX:0,targetY:0,
     moveTimer:0,attackTimer:0,
     phase:1,
@@ -705,8 +705,8 @@ function initBossFight(){
   boss.playerX=arenaRect.width/2;boss.playerY=arenaRect.height*0.7;
 
   document.getElementById('boss-hp-fill').style.width='100%';
-  document.getElementById('boss-hp-text').textContent='500';
-  document.getElementById('boss-hp-max').textContent='500';
+  document.getElementById('boss-hp-text').textContent='1500';
+  document.getElementById('boss-hp-max').textContent='1500';
   document.getElementById('player-hp-fill').style.width='100%';
   document.getElementById('player-hp-text').textContent='200';
   document.getElementById('end-dmg').textContent='0';
@@ -756,16 +756,16 @@ function bossLoop(ts){
     if(boss.moveTimer<=0){
       boss.targetX=90+Math.random()*(arenaRect.width-180);
       boss.targetY=90+Math.random()*(arenaRect.height-200);
-      boss.moveTimer=1200+Math.random()*1800;
+      boss.moveTimer=800+Math.random()*1200;
     }
-    var ms=0.0025*dt;
+    var ms=0.004*dt;
     boss.x+=(boss.targetX-boss.x)*ms;
     boss.y+=(boss.targetY-boss.y)*ms;
 
     boss.attackTimer-=dt;
     if(boss.attackTimer<=0){
       bossShoot();
-      boss.attackTimer=boss.phase===1?2200:boss.phase===2?1500:900;
+      boss.attackTimer=boss.phase===1?1800:boss.phase===2?1100:700;
     }
 
     if(boss.invincible){
@@ -790,14 +790,14 @@ function bossLoop(ts){
 
 function bossShoot(){
   if(!boss||!boss.alive)return;
-  var count=boss.phase===1?1:boss.phase===2?2:3;
+  var count=boss.phase===1?2:boss.phase===2?3:4;
   for(var i=0;i<count;i++){
     (function(i2){
       setTimeout(function(){
         if(!boss||!boss.alive)return;
-        var spread=boss.phase===3?0.7:0.25;
+        var spread=boss.phase===3?0.8:0.3;
         var angle=Math.atan2(boss.playerY-boss.y,boss.playerX-boss.x)+(Math.random()-0.5)*spread;
-        spawnBossProj(angle,.055+boss.phase*0.012);
+        spawnBossProj(angle,.07+boss.phase*0.015);
       },i2*220);
     })(i);
   }

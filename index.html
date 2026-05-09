@@ -182,22 +182,20 @@ header{text-align:center;padding:20px 0 32px}
 @keyframes clFadeIn{from{opacity:0}to{opacity:1}}
 
 /* BOSS FIGHT */
-#boss-overlay{position:fixed;inset:0;z-index:300;background:#000;flex-direction:column;user-select:none;display:none}
-#boss-overlay.active{display:flex}
-#boss-hud{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);border-bottom:1px solid rgba(0,229,255,.2);pointer-events:none}
+#boss-arena{position:relative;flex:1;min-height:420px;overflow:hidden;cursor:crosshair;background:radial-gradient(ellipse at 50% 30%,#0a0020 0%,#050010 60%,#000 100%);box-shadow:inset 0 0 60px rgba(180,0,255,.08);border:1px solid rgba(0,229,255,.15);border-radius:8px;user-select:none;display:block}
+#boss-hud{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);border-bottom:1px solid rgba(0,229,255,.2)}
 .boss-hud-section{flex:1}
 .boss-hud-section:last-child{text-align:right}
 .boss-hud-label{font-family:var(--font-head);font-size:.6rem;letter-spacing:3px;color:var(--muted);margin-bottom:6px}
 .boss-hp-bar{height:8px;background:var(--s2);border-radius:4px;overflow:hidden;max-width:250px;border:1px solid var(--border)}
 .boss-bar-enemy{max-width:300px}
-#boss-hp-fill{height:100%;border-radius:4px;transition:width .3s}
+#boss-hp-fill,#player-hp-fill{height:100%;border-radius:4px;transition:width .3s}
 #player-hp-fill{background:linear-gradient(90deg,#ff0090,#ff4444);box-shadow:0 0 10px rgba(255,0,144,.5)}
 #boss-hp-fill{background:linear-gradient(90deg,#b400ff,#ff0090);box-shadow:0 0 10px rgba(180,0,255,.5)}
 .boss-hud-val{font-family:var(--font-head);font-size:.7rem;color:var(--text);margin-top:4px}
 .boss-hud-center{text-align:center;flex:0 0 auto}
 #boss-announce{font-family:var(--font-head);font-size:.8rem;letter-spacing:4px;color:var(--magenta);text-shadow:0 0 20px var(--magenta);animation:announcePulse 1.5s ease infinite}
 @keyframes announcePulse{0%,100%{opacity:1;text-shadow:0 0 20px var(--magenta)}50%{opacity:.7;text-shadow:0 0 5px var(--magenta)}}
-#boss-arena{position:relative;flex:1;min-height:420px;overflow:hidden;cursor:crosshair;background:radial-gradient(ellipse at 50% 30%,#0a0020 0%,#050010 60%,#000 100%);box-shadow:inset 0 0 60px rgba(180,0,255,.08);border:1px solid rgba(0,229,255,.15);border-radius:8px}
 #boss-ent{position:absolute;cursor:crosshair;transform:translate(-50%,-50%);z-index:3;user-select:none}
 #boss-img-wrap{width:110px;height:110px;border-radius:50%;border:3px solid var(--magenta);box-shadow:0 0 40px var(--magenta),0 0 80px rgba(180,0,255,.4);overflow:hidden;display:block;animation:bossFloat 3s ease-in-out infinite;cursor:crosshair;background:#0a0020}
 #boss-img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;cursor:crosshair}
@@ -274,102 +272,6 @@ header{text-align:center;padding:20px 0 32px}
   <div class="cl-level-ok">[ нажмите куда угодно, чтобы продолжить ]</div>
 </div>
 
-<!-- Boss fight overlay -->
-<div id="boss-overlay">
-  <div id="boss-hud">
-    <div class="boss-hud-section">
-      <div class="boss-hud-label">ТВОЕ ХП</div>
-      <div class="boss-hp-bar"><div id="player-hp-fill" style="width:100%"></div></div>
-      <div class="boss-hud-val"><span id="player-hp-text">100</span> / 100</div>
-    </div>
-    <div class="boss-hud-center">
-      <div id="boss-announce">БОСС АКТИВИРОВАН</div>
-    </div>
-    <div class="boss-hud-section" style="text-align:right">
-      <div class="boss-hud-label">ХП БОССА</div>
-      <div class="boss-hp-bar boss-bar-enemy"><div id="boss-hp-fill" style="width:100%"></div></div>
-      <div class="boss-hud-val"><span id="boss-hp-text">500</span> / <span id="boss-hp-max">500</span></div>
-    </div>
-  </div>
-
-  <div id="boss-arena" tabindex="0">
-    <div id="boss-hints">WASD — ДВИЖЕНИЕ &nbsp;|&nbsp; ЛКМ — ОГОНЬ &nbsp;|&nbsp; Q W E R — СПЕЦ. НАВЫКИ</div>
-    <div id="boss-ent">
-      <div id="boss-img-wrap">
-        <img id="boss-img" src="images/5.jpg" alt="boss" draggable="false"/>
-      </div>
-      <div id="boss-name-label">БОСС: СИНГУЛЯРНОСТЬ</div>
-    </div>
-    <div id="boss-projectiles"></div>
-    <div id="boss-rockets"></div>
-    <div id="boss-player">
-      <div id="player-sprite"></div>
-    </div>
-  </div>
-
-  <div id="boss-controls">
-    <div class="boss-ability" id="ab-rocket" data-key="q" title="Q">
-      <div class="ba-key">Q</div>
-      <div class="ba-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-      </div>
-      <div>
-        <div class="ba-name">РАКЕТНАЯ АТАКА</div>
-        <div class="ba-desc">5 ракет в босса</div>
-      </div>
-      <div class="ba-cooldown" id="cd-rocket">—</div>
-      <div class="ba-cd-bar" id="cdbar-rocket" style="width:0%"></div>
-    </div>
-    <div class="boss-ability" id="ab-shield" data-key="w" title="W">
-      <div class="ba-key">W</div>
-      <div class="ba-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      </div>
-      <div>
-        <div class="ba-name">ЩИТ</div>
-        <div class="ba-desc">Блокирует урон 3 сек</div>
-      </div>
-      <div class="ba-cooldown" id="cd-shield">—</div>
-      <div class="ba-cd-bar" id="cdbar-shield" style="width:0%"></div>
-    </div>
-    <div class="boss-ability" id="ab-dash" data-key="e" title="E">
-      <div class="ba-key">E</div>
-      <div class="ba-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-      </div>
-      <div>
-        <div class="ba-name">РЫВОК</div>
-        <div class="ba-desc">Быстрый прыжок</div>
-      </div>
-      <div class="ba-cooldown" id="cd-dash">—</div>
-      <div class="ba-cd-bar" id="cdbar-dash" style="width:0%"></div>
-    </div>
-    <div class="boss-ability" id="ab-laser" data-key="r" title="R">
-      <div class="ba-key">R</div>
-      <div class="ba-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="12"/><line x1="12" y1="12" x2="22" y2="12"/></svg>
-      </div>
-      <div>
-        <div class="ba-name">ЛАЗЕР</div>
-        <div class="ba-desc">Мощный луч — 150 урона</div>
-      </div>
-      <div class="ba-cooldown" id="cd-laser">—</div>
-      <div class="ba-cd-bar" id="cdbar-laser" style="width:0%"></div>
-    </div>
-  </div>
-
-  <div id="boss-game-over" class="boss-end-screen" style="display:none">
-    <div id="boss-end-title">ПОРАЖЕНИЕ</div>
-    <div id="boss-end-sub">Сингулярность поглотила всё...</div>
-    <div class="boss-end-stats">
-      <span>Урон нанесён: <b id="end-dmg">0</b></span>
-      <span>Попаданий получено: <b id="boss-hits-out">0</b></span>
-    </div>
-    <button class="btn btn-yellow" id="boss-retry-btn">ПОВТОРИТЬ БОЙ</button>
-    <button class="btn btn-magenta" id="boss-give-up-btn">СДАТЬСЯ</button>
-  </div>
-</div>
-
 <div id="app">
   <header>
     <div class="logo" data-text="CYBER//HUB">CYBER<span class="logo-slash">//</span>HUB</div>
@@ -393,9 +295,119 @@ header{text-align:center;padding:20px 0 32px}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
       CLICKER
     </button>
+    <button class="tab-btn" data-tab="boss" id="tab-btn-boss" style="display:none">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+      BOSS
+    </button>
   </nav>
 
-  <div class="tab-panel active" id="tab-crop">
+  <!-- BOSS FIGHT TAB PANEL -->
+  <div class="tab-panel" id="tab-boss">
+    <div class="card" style="padding:0;overflow:hidden;min-height:540px;position:relative" id="boss-card">
+      <div id="boss-hud">
+        <div class="boss-hud-section">
+          <div class="boss-hud-label">ТВОЕ ХП</div>
+          <div class="boss-hp-bar"><div id="player-hp-fill" style="width:100%;height:100%;border-radius:4px;background:linear-gradient(90deg,#ff0090,#ff4444);box-shadow:0 0 10px rgba(255,0,144,.5)"></div></div>
+          <div class="boss-hud-val"><span id="player-hp-text">200</span> / 200</div>
+        </div>
+        <div class="boss-hud-center">
+          <div id="boss-announce" style="font-family:var(--font-head);font-size:.8rem;letter-spacing:4px;color:var(--magenta);text-shadow:0 0 20px var(--magenta);animation:announcePulse 1.5s ease infinite">Сражения нет</div>
+        </div>
+        <div class="boss-hud-section" style="text-align:right">
+          <div class="boss-hud-label">ХП БОССА</div>
+          <div class="boss-hp-bar boss-bar-enemy"><div id="boss-hp-fill" style="width:100%;height:100%;border-radius:4px;background:linear-gradient(90deg,#b400ff,#ff0090);box-shadow:0 0 10px rgba(180,0,255,.5)"></div></div>
+          <div class="boss-hud-val"><span id="boss-hp-text">500</span> / <span id="boss-hp-max">500</span></div>
+        </div>
+      </div>
+
+      <div id="boss-arena" tabindex="0">
+        <div id="boss-hints">WASD — ДВИЖЕНИЕ &nbsp;|&nbsp; ЛКМ — ОГОНЬ &nbsp;|&nbsp; Q W E R — СПЕЦ. НАВЫКИ</div>
+        <div id="boss-ent">
+          <div id="boss-img-wrap">
+            <img id="boss-img" src="images/5.jpg" alt="boss" draggable="false"/>
+          </div>
+          <div id="boss-name-label">БОСС: ЛЕХА КИБЕРТРОН</div>
+        </div>
+        <div id="boss-projectiles"></div>
+        <div id="boss-rockets"></div>
+        <div id="boss-player">
+          <div id="player-sprite"></div>
+        </div>
+      </div>
+
+      <div id="boss-controls">
+        <div class="boss-ability" id="ab-rocket" data-key="q">
+          <div class="ba-key">Q</div>
+          <div class="ba-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </div>
+          <div>
+            <div class="ba-name">РАКЕТНАЯ АТАКА</div>
+            <div class="ba-desc">5 ракет в босса</div>
+          </div>
+          <div class="ba-cooldown" id="cd-rocket">—</div>
+          <div class="ba-cd-bar" id="cdbar-rocket" style="width:0%"></div>
+        </div>
+        <div class="boss-ability" id="ab-shield" data-key="w">
+          <div class="ba-key">W</div>
+          <div class="ba-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <div class="ba-name">ЩИТ</div>
+            <div class="ba-desc">Блокирует урон 3 сек</div>
+          </div>
+          <div class="ba-cooldown" id="cd-shield">—</div>
+          <div class="ba-cd-bar" id="cdbar-shield" style="width:0%"></div>
+        </div>
+        <div class="boss-ability" id="ab-dash" data-key="e">
+          <div class="ba-key">E</div>
+          <div class="ba-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          </div>
+          <div>
+            <div class="ba-name">РЫВОК</div>
+            <div class="ba-desc">Быстрый прыжок</div>
+          </div>
+          <div class="ba-cooldown" id="cd-dash">—</div>
+          <div class="ba-cd-bar" id="cdbar-dash" style="width:0%"></div>
+        </div>
+        <div class="boss-ability" id="ab-laser" data-key="r">
+          <div class="ba-key">R</div>
+          <div class="ba-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="12"/><line x1="12" y1="12" x2="22" y2="12"/></svg>
+          </div>
+          <div>
+            <div class="ba-name">ЛАЗЕР</div>
+            <div class="ba-desc">Мощный луч — 150 урона</div>
+          </div>
+          <div class="ba-cooldown" id="cd-laser">—</div>
+          <div class="ba-cd-bar" id="cdbar-laser" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div id="boss-game-over" class="boss-end-screen" style="display:none">
+        <div id="boss-end-title">ПОРАЖЕНИЕ</div>
+        <div id="boss-end-sub">ЛЕХА КИБЕРТРОН оказался сильнее...</div>
+        <div class="boss-end-stats">
+          <span>Урон нанесён: <b id="end-dmg">0</b></span>
+          <span>Попаданий получено: <b id="boss-hits-out">0</b></span>
+        </div>
+        <button class="btn btn-yellow" id="boss-retry-btn">ПОВТОРИТЬ БОЙ</button>
+        <button class="btn btn-magenta" id="boss-give-up-btn">ВЕРНУТЬСЯ</button>
+      </div>
+
+      <!-- Boss not unlocked message -->
+      <div id="boss-locked" style="display:none;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--s1)">
+        <div style="font-family:var(--font-head);font-size:2rem;color:var(--magenta);text-shadow:var(--glow-m)">🔒</div>
+        <div style="font-family:var(--font-head);font-size:.9rem;letter-spacing:3px;color:var(--muted)">БОСС ЗАБЛОКИРОВАН</div>
+        <div style="font-size:.8rem;color:var(--muted);text-align:center">Пройди все 5 уровней в КЛИКЕРЕ,<br>чтобы разблокировать бой с ЛЕХОЙ КИБЕРТРОНОМ</div>
+        <button class="btn btn-cyan btn-sm" id="boss-locked-back">ВЕРНУТЬСЯ В КЛИКЕР</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-crop">
     <div id="upload-zone">
       <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       <h2>DRAG &amp; DROP IMAGE</h2>
@@ -578,15 +590,28 @@ header{text-align:center;padding:20px 0 32px}
 /* TABS */
 document.querySelectorAll('.tab-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
+    var tab=btn.dataset.tab;
+    if(tab==='boss'){
+      // Boss tab only if unlocked (level 5 reached at least once)
+      if(!cl.state||cl.state.level<5){
+        // Show locked message
+        document.getElementById('boss-locked').style.display='flex';
+        return;
+      } else {
+        document.getElementById('boss-locked').style.display='none';
+      }
+    }
     document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
     document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
     btn.classList.add('active');
-    var tab=document.getElementById('tab-'+btn.dataset.tab);
-    if(tab)tab.classList.add('active');
-    if(btn.dataset.tab==='codes')loadCodes();
-    if(btn.dataset.tab==='roulette')drawWheel();
-    if(btn.dataset.tab==='clicker')initClicker();
+    var panel=document.getElementById('tab-'+tab);
+    if(panel)panel.classList.add('active');
+    if(tab==='codes')loadCodes();
+    if(tab==='roulette')drawWheel();
+    if(tab==='clicker')initClicker();
+    if(tab==='boss')initBossTab();
   });
+});
 });
 
 /* CROP */
@@ -912,7 +937,13 @@ function checkLvl(){
       ov.classList.add('open');
       setTimeout(function(){
         ov.classList.remove('open');
-        document.getElementById('boss-overlay').classList.add('boss-ready');
+        // Show boss tab
+        document.getElementById('tab-btn-boss').style.display='flex';
+        document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+        document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+        document.getElementById('tab-btn-boss').classList.add('active');
+        document.getElementById('tab-boss').classList.add('active');
+        initBossTab();
         startBossFight();
       },2400);
     } else {
@@ -1048,11 +1079,79 @@ document.getElementById('cl-level-overlay').addEventListener('click',function(){
 var boss=null;
 var keys={};
 var arenaRect=null;
+var bossInited=false;
+
+function initBossTab(){
+  if(bossInited)return;
+  bossInited=true;
+  document.getElementById('boss-arena').addEventListener('click',function(e){
+    if(!boss||!boss.alive)return;
+    fireRocket(false);
+  });
+  document.getElementById('boss-arena').addEventListener('mousemove',function(e){
+    if(!boss||!boss.alive)return;
+    var r=e.currentTarget.getBoundingClientRect();
+    boss._mouseX=e.clientX-r.left;
+    boss._mouseY=e.clientY-r.top;
+  });
+  document.getElementById('boss-arena').addEventListener('touchstart',function(e){
+    e.preventDefault();
+    if(!boss||!boss.alive)return;
+    var r=document.getElementById('boss-arena').getBoundingClientRect();
+    var t=e.touches[0];
+    boss._mouseX=t.clientX-r.left;
+    boss._mouseY=t.clientY-r.top;
+    fireRocket(false);
+  },{passive:false});
+  document.getElementById('boss-arena').addEventListener('touchmove',function(e){
+    e.preventDefault();
+    if(!boss||!boss.alive)return;
+    var r=document.getElementById('boss-arena').getBoundingClientRect();
+    var t=e.touches[0];
+    boss._mouseX=t.clientX-r.left;
+    boss._mouseY=t.clientY-r.top;
+  },{passive:false});
+  document.getElementById('ab-rocket').addEventListener('click',skillRocket);
+  document.getElementById('ab-shield').addEventListener('click',skillShield);
+  document.getElementById('ab-dash').addEventListener('click',skillDash);
+  document.getElementById('ab-laser').addEventListener('click',skillLaser);
+  document.getElementById('boss-retry-btn').addEventListener('click',function(){
+    document.getElementById('boss-game-over').style.display='none';
+    boss=null;setTimeout(startBossFight,100);
+  });
+  document.getElementById('boss-give-up-btn').addEventListener('click',function(){
+    if(boss){boss.alive=false;cancelAnimationFrame(boss.animId);}
+    document.getElementById('boss-game-over').style.display='none';
+    boss=null;
+    // Return to clicker tab
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+    document.getElementById('tab-btn-boss').classList.remove('active');
+    document.getElementById('tab-boss').classList.remove('active');
+    document.getElementById('tab-btn-boss').style.display='none';
+    document.getElementById('tab-btn-clicker').classList.add('active');
+    document.getElementById('tab-clicker').classList.add('active');
+  });
+  document.getElementById('boss-locked-back').addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+    document.getElementById('tab-btn-clicker').classList.add('active');
+    document.getElementById('tab-clicker').classList.add('active');
+  });
+  document.addEventListener('keydown',function(e){
+    if(!boss||!boss.alive)return;
+    var k=e.key.toLowerCase();
+    keys[k]=true;
+    if(k==='q'||k==='й')skillRocket();
+    if(k==='w'||k==='ц')skillShield();
+    if(k==='e'||k==='у')skillDash();
+    if(k==='r'||k==='к')skillLaser();
+  });
+  document.addEventListener('keyup',function(e){keys[e.key.toLowerCase()]=false;});
+}
 
 function startBossFight(){
   if(boss&&boss.alive)return;
-  // Require explicit .boss-ready flag (set by level-up click handler, not auto on load)
-  if(!document.getElementById('boss-overlay').classList.contains('boss-ready'))return;
   boss={
     hp:500,maxHp:500,
     x:0,y:0,targetX:0,targetY:0,
@@ -1070,9 +1169,6 @@ function startBossFight(){
     laserActive:false,
     playerVelX:0,playerVelY:0,
   };
-  var overlay=document.getElementById('boss-overlay');
-  overlay.classList.remove('boss-ready');
-  overlay.classList.add('active');
   document.getElementById('boss-game-over').style.display='none';
   var arena=document.getElementById('boss-arena');
   arena.focus();
@@ -1402,67 +1498,6 @@ function endBoss(victory){
   }
   document.getElementById('boss-hits-out').textContent=boss.hits;
 }
-
-// Retry / give up
-document.getElementById('boss-retry-btn').addEventListener('click',function(){
-  document.getElementById('boss-overlay').classList.remove('active');
-  boss=null;setTimeout(startBossFight,100);
-});
-document.getElementById('boss-give-up-btn').addEventListener('click',function(){
-  if(boss){boss.alive=false;cancelAnimationFrame(boss.animId);}
-  document.getElementById('boss-overlay').classList.remove('active');
-});
-
-// Skill buttons
-document.getElementById('ab-rocket').addEventListener('click',skillRocket);
-document.getElementById('ab-shield').addEventListener('click',skillShield);
-document.getElementById('ab-dash').addEventListener('click',skillDash);
-document.getElementById('ab-laser').addEventListener('click',skillLaser);
-
-// Keyboard input
-document.addEventListener('keydown',function(e){
-  if(!boss||!boss.alive)return;
-  var k=e.key.toLowerCase();
-  keys[k]=true;
-  if(k==='q'||k==='й')skillRocket();
-  if(k==='w'||k==='ц'){skillShield();}
-  if(k==='e'||k==='у')skillDash();
-  if(k==='r'||k==='к')skillLaser();
-});
-document.addEventListener('keyup',function(e){
-  keys[e.key.toLowerCase()]=false;
-});
-
-// Arena: click to fire, track mouse for direction
-document.getElementById('boss-arena').addEventListener('click',function(e){
-  if(!boss||!boss.alive)return;
-  fireRocket(false);
-});
-document.getElementById('boss-arena').addEventListener('mousemove',function(e){
-  if(!boss||!boss.alive)return;
-  var r=e.currentTarget.getBoundingClientRect();
-  boss._mouseX=e.clientX-r.left;
-  boss._mouseY=e.clientY-r.top;
-});
-
-// Touch: tap to fire
-document.getElementById('boss-arena').addEventListener('touchstart',function(e){
-  e.preventDefault();
-  if(!boss||!boss.alive)return;
-  var r=document.getElementById('boss-arena').getBoundingClientRect();
-  var t=e.touches[0];
-  boss._mouseX=t.clientX-r.left;
-  boss._mouseY=t.clientY-r.top;
-  fireRocket(false);
-},{passive:false});
-document.getElementById('boss-arena').addEventListener('touchmove',function(e){
-  e.preventDefault();
-  if(!boss||!boss.alive)return;
-  var r=document.getElementById('boss-arena').getBoundingClientRect();
-  var t=e.touches[0];
-  boss._mouseX=t.clientX-r.left;
-  boss._mouseY=t.clientY-r.top;
-},{passive:false});
 
 /* UTILS */
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}

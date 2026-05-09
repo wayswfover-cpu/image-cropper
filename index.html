@@ -182,7 +182,8 @@ header{text-align:center;padding:20px 0 32px}
 @keyframes clFadeIn{from{opacity:0}to{opacity:1}}
 
 /* BOSS FIGHT */
-#boss-overlay{display:none;position:fixed;inset:0;z-index:300;background:#000;flex-direction:column;user-select:none}
+#boss-overlay{position:fixed;inset:0;z-index:300;background:#000;flex-direction:column;user-select:none;display:none}
+#boss-overlay.active{display:flex}
 #boss-hud{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);border-bottom:1px solid rgba(0,229,255,.2);pointer-events:none}
 .boss-hud-section{flex:1}
 .boss-hud-section:last-child{text-align:right}
@@ -1067,7 +1068,7 @@ function startBossFight(){
     playerVelX:0,playerVelY:0,
   };
   var overlay=document.getElementById('boss-overlay');
-  overlay.style.display='flex';
+  overlay.classList.add('active');
   document.getElementById('boss-game-over').style.display='none';
   var arena=document.getElementById('boss-arena');
   arena.focus();
@@ -1384,7 +1385,6 @@ function endBoss(victory){
   cancelAnimationFrame(boss.animId);
   var go=document.getElementById('boss-game-over');
   go.style.display='flex';
-  document.getElementById('boss-announce').textContent='';
   var t=document.getElementById('boss-end-title');
   var s=document.getElementById('boss-end-sub');
   if(victory){
@@ -1401,12 +1401,12 @@ function endBoss(victory){
 
 // Retry / give up
 document.getElementById('boss-retry-btn').addEventListener('click',function(){
-  document.getElementById('boss-overlay').style.display='none';
+  document.getElementById('boss-overlay').classList.remove('active');
   boss=null;setTimeout(startBossFight,100);
 });
 document.getElementById('boss-give-up-btn').addEventListener('click',function(){
   if(boss){boss.alive=false;cancelAnimationFrame(boss.animId);}
-  document.getElementById('boss-overlay').style.display='none';
+  document.getElementById('boss-overlay').classList.remove('active');
 });
 
 // Skill buttons

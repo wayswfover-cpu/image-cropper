@@ -397,8 +397,8 @@ header{text-align:center;padding:20px 0 32px}
         <button class="btn btn-magenta" id="boss-give-up-btn">ВЕРНУТЬСЯ</button>
       </div>
 
-      <!-- Boss not unlocked message -->
-      <div id="boss-locked" style="display:none;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--s1)">
+<!-- Boss not unlocked message -->
+      <div id="boss-locked" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--s1)">
         <div style="font-family:var(--font-head);font-size:2rem;color:var(--magenta);text-shadow:var(--glow-m)">🔒</div>
         <div style="font-family:var(--font-head);font-size:.9rem;letter-spacing:3px;color:var(--muted)">БОСС ЗАБЛОКИРОВАН</div>
         <div style="font-size:.8rem;color:var(--muted);text-align:center">Пройди все 5 уровней в КЛИКЕРЕ,<br>чтобы разблокировать бой с ЛЕХОЙ КИБЕРТРОНОМ</div>
@@ -611,7 +611,6 @@ document.querySelectorAll('.tab-btn').forEach(function(btn){
     if(tab==='clicker')initClicker();
     if(tab==='boss')initBossTab();
   });
-});
 });
 
 /* CROP */

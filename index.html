@@ -2,7 +2,9 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <title>CYBER//HUB</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
@@ -208,6 +210,75 @@ header{text-align:center;padding:20px 0 32px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+
+/* ===================== MOBILE / iOS ===================== */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-mono);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  min-height:100dvh;
+  overflow-x:hidden;
+  position:relative;
+  padding-bottom:env(safe-area-inset-bottom);
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  user-select:none;
+}
+
+#app{padding-bottom:env(safe-area-inset-bottom)}
+
+/* tabs scroll on mobile */
+.tab-nav{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{min-width:fit-content;white-space:nowrap}
+
+/* responsive grid fixes */
+.codes-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))!important}
+
+@media(max-width:600px){
+  .corner{display:none!important}
+  header{padding:14px 0 20px!important}
+  .logo{font-size:clamp(1.4rem,8vw,2rem)!important;letter-spacing:2px!important}
+  #app{padding:16px 8px 60px!important}
+  .tab-nav{margin-bottom:16px!important;padding:4px!important;gap:2px!important}
+  .tab-btn{font-size:.6rem!important;padding:8px 12px!important;letter-spacing:1px!important;min-width:0}
+  .tab-btn svg{width:12px!important;height:12px!important}
+  .card{padding:14px!important;margin-bottom:0!important}
+  .card-title{font-size:.68rem!important;margin-bottom:12px!important}
+  .upload-zone{padding:28px 16px!important}
+  #upload-zone svg{width:36px!important;height:36px!important}
+  #upload-zone h2{font-size:.85rem!important}
+  #upload-zone p{font-size:.72rem!important}
+  .btn{font-size:.65rem!important;padding:8px 14px!important;letter-spacing:1px!important}
+  .input-field{font-size:.82rem!important;padding:8px 10px!important}
+  .hint{padding:8px 12px!important;font-size:.72rem!important;margin-bottom:14px!important}
+  .toolbar{gap:6px!important;margin-bottom:14px!important}
+  .codes-header{flex-direction:column!important;align-items:flex-start!important;gap:8px!important}
+  .codes-grid{grid-template-columns:1fr!important;gap:10px!important}
+  .code-card{padding:12px!important}
+  .code-card-code{font-size:.88rem!important}
+  .code-card-reward{font-size:.72rem!important;margin-bottom:10px!important}
+  #roulette-canvas{width:240px!important;height:240px!important}
+  .roulette-canvas-wrap{margin-top:16px!important}
+  #info-bar{flex-direction:column;align-items:center;gap:4px!important;font-size:.7rem!important}
+  .item-chip{padding:6px 10px!important;font-size:.78rem!important}
+  #items-list{max-height:180px!important}
+  .item-input-row{flex-direction:column}
+  .item-input-row .btn{width:100%}
+  .btn-cyan,.btn-magenta,.btn-yellow,.btn-green{font-size:.62rem!important;padding:7px 10px!important}
+  .modal-card{padding:16px!important}
+  .modal-title{font-size:.72rem!important}
+}
+
+@media(max-width:400px){
+  .tab-btn{font-size:.55rem!important;padding:7px 8px!important}
+  .tab-btn span{display:none}
+  .card{padding:10px!important}
+  #upload-zone{padding:20px 12px!important}
+}
 </style>
 </head>
 <body>

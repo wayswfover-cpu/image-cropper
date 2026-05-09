@@ -390,11 +390,11 @@ var UPG=[
 var state={level:1,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};
 
 /* ========== SOUND ========== */
-var clickSound=new Audio('sounds/1.mp3');
-clickSound.volume=0.5;
-clickSound.preload='auto';
+var lastClickSoundTime=0;
 function playClickSound(){
-  if(clickSound.readyState<2) return;
+  var now=Date.now();
+  if(now-lastClickSoundTime<60) return;
+  lastClickSoundTime=now;
   var s=new Audio('sounds/1.mp3');
   s.volume=0.5;
   s.play().catch(function(){});

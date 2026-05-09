@@ -604,7 +604,7 @@ function updateUI(){
   if(n){
     document.getElementById('cl-upg-level-name').textContent='СЛЕДУЮЩИЙ УРОВЕНЬ';
     document.getElementById('cl-upg-level-desc').textContent=l.name+' -> '+n.name;
-    document.getElementById('cl-upg-level-cost').textContent=fmt(n.clicks);
+    document.getElementById('cl-upg-level-cost').textContent=fmt(n.clicks||0);
     btnL.disabled=(state.progress||0)<n.clicks;
   } else {
     document.getElementById('cl-upg-level-name').textContent='МАКСИМУМ ДОСТИГНУТ';

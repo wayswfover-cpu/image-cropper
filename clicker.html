@@ -437,7 +437,7 @@ function load(){
     if(!s)return;
     state.level=s.level||1;
     state.totalClicks=s.totalClicks||0;
-    state.spendable=s.spendable||0;
+    state.spendable=s.spendable||s.clicks||0;
     state.clickPower=s.clickPower||0;
     state.autoClick=s.autoClick||0;
     state.crit=s.crit||0;
@@ -457,11 +457,12 @@ function doClick(){
   var cpc=getCPC();
   var crit=(state.crit>0)&&(Math.random()<state.crit*0.1);
   var g=crit?cpc*2:cpc;
-  state.spendable+=g;
+  state.spendable=(state.spendable||0)+g;
   state.totalClicks+=g;
   spawnParticle('+'+g+(crit?' CRIT':''));
   playClickSound();
   checkLevel();
+  renderUpg();
   updateUI();
 }
 
@@ -514,19 +515,21 @@ function showLevelOverlay(n,name,isBoss){
 function autoTick(){
   var s=getCPS();
   if(s<=0)return;
-  state.spendable+=s;
+  state.spendable=(state.spendable||0)+s;
   state.totalClicks+=s;
   checkLevel();
+  renderUpg();
   updateUI();
 }
 
 /* ========== UPGRADES ========== */
 function buyUpg(id){
   var u=UPG.find(function(x){return x.id===id});
-  var owned=state[id]||0;
+  var owned=state[u.id]||0;
   var cost=Math.floor(u.baseCost*Math.pow(u.costMult,owned));
-   if(state.spendable<cost||owned>=u.max)return;
-  state.spendable-=cost;
+  var sp=state.spendable||0;
+  if(sp<cost||owned>=u.max)return;
+  state.spendable=sp-cost;
   state[id]=(state[id]||0)+1;
   renderUpg();
   updateUI();
@@ -605,10 +608,11 @@ function drawCoreImg(lvl){
   img.style.display='block';
 }
 
-/* ========== INIT ========== */
 function init(){
   load();
   state.level=Math.min(state.level,5);
+  state.totalClicks=state.totalClicks||0;
+  state.spendable=state.spendable||0;
   drawCoreImg(state.level);
   renderUpg();
   updateUI();

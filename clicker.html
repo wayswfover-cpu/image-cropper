@@ -608,6 +608,7 @@ document.getElementById('cl-btn-reset').addEventListener('click',function(){
 var boss=null;
 var keys={};
 var arenaRect=null;
+var bossMusic=null;
 
 function openBossScreen(){
   document.getElementById('boss-screen').classList.add('active');
@@ -615,7 +616,16 @@ function openBossScreen(){
   initBossFight();
 }
 
+function stopBossMusic(){
+  if(bossMusic){
+    bossMusic.pause();
+    bossMusic.currentTime=0;
+    bossMusic=null;
+  }
+}
+
 function closeBossScreen(returnToClicker){
+  stopBossMusic();
   document.getElementById('boss-screen').classList.remove('active');
   boss=null;
   if(returnToClicker){
@@ -660,6 +670,13 @@ function initBossFight(){
   document.getElementById('boss-projectiles').innerHTML='';
   document.getElementById('boss-rockets').innerHTML='';
   document.getElementById('player-sprite').className='';
+
+  // Start boss music
+  stopBossMusic();
+  bossMusic=new Audio('sounds/boss.mp3');
+  bossMusic.volume=0.45;
+  bossMusic.loop=true;
+  bossMusic.play().catch(function(){});
 
   updateBossPos();
   updatePlayerPos();
@@ -960,6 +977,7 @@ function skillLaser(){
 
 function endBoss(victory){
   if(!boss)return;
+  stopBossMusic();
   boss.alive=false;boss.dying=true;
   cancelAnimationFrame(boss.animId);
   var end=document.getElementById('boss-end');
@@ -1014,7 +1032,7 @@ document.getElementById('ab-laser').addEventListener('click',skillLaser);
 document.getElementById('btn-retry').addEventListener('click',function(){
   document.getElementById('boss-end').classList.remove('active');
   boss=null;
-  setTimeout(initBossFight,100);
+  setTimeout(function(){stopBossMusic();initBossFight();},100);
 });
 document.getElementById('btn-back-clicker').addEventListener('click',function(){
   closeBossScreen(true);

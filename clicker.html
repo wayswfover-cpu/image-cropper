@@ -378,6 +378,12 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
           </div>
           <button class="btn btn-yellow btn-sm" id="cl-btn-level"><span id="cl-upg-level-cost">50</span> КЛИКОВ</button>
         </div>
+        <div id="cl-btn-boss-wrap" style="display:none;margin-top:10px">
+          <button class="btn btn-red" id="cl-btn-boss" style="width:100%;justify-content:center;font-size:.75rem;letter-spacing:2px;padding:12px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            БИТВА С БОССОМ
+          </button>
+        </div>
         <div class="neon-sep"></div>
         <div class="cl-upgrades-list" id="cl-upgrades-list"></div>
         <div class="neon-sep"></div>
@@ -600,17 +606,20 @@ function updateUI(){
 
   // Level upgrade button
   var n=LEVELS[state.level];
-  var btnL=document.getElementById('cl-btn-level');
-  if(n){
-    document.getElementById('cl-upg-level-name').textContent='СЛЕДУЮЩИЙ УРОВЕНЬ';
-    document.getElementById('cl-upg-level-desc').textContent=l.name+' -> '+n.name;
-    document.getElementById('cl-upg-level-cost').textContent=fmt(n.clicks||0);
-    btnL.disabled=(state.progress||0)<n.clicks;
+  var btnLWrap=document.getElementById('cl-upg-level');
+  var btnBossWrap=document.getElementById('cl-btn-boss-wrap');
+  if(state.level>=5){
+    btnLWrap.style.display='none';
+    btnBossWrap.style.display='block';
   } else {
-    document.getElementById('cl-upg-level-name').textContent='МАКСИМУМ ДОСТИГНУТ';
-    document.getElementById('cl-upg-level-desc').textContent='Все уровни пройдены!';
-    document.getElementById('cl-upg-level-cost').textContent='MAX';
-    btnL.disabled=true;
+    btnLWrap.style.display='flex';
+    btnBossWrap.style.display='none';
+    if(n){
+      document.getElementById('cl-upg-level-name').textContent='СЛЕДУЮЩИЙ УРОВЕНЬ';
+      document.getElementById('cl-upg-level-desc').textContent=l.name+' -> '+n.name;
+      document.getElementById('cl-upg-level-cost').textContent=fmt(n.clicks||0);
+      btnL.disabled=(state.progress||0)<n.clicks;
+    }
   }
 }
 
@@ -643,7 +652,11 @@ document.getElementById('cl-core').addEventListener('click',function(){
 document.getElementById('cl-core').addEventListener('touchstart',function(e){
   e.preventDefault();doClick();save();
 },{passive:false});
-document.getElementById('cl-btn-level').addEventListener('click',function(){checkLevel();updateUI()});
+document.getElementById('cl-btn-level').addEventListener('click',function(){checkLevel();renderUpg();updateUI()});
+document.getElementById('cl-btn-boss').addEventListener('click',function(){
+  save();
+  openBossScreen();
+});
 document.getElementById('cl-btn-reset').addEventListener('click',function(){
   if(!confirm('Сбросить весь прогресс кликера?'))return;
   state={level:1,totalClicks:0,spendable:0,progress:0,clickPower:0,autoClick:0,crit:0,multi:0};

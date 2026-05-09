@@ -558,6 +558,7 @@ function checkLevel(){
   if((state.progress||0)>=LEVELS[n-1].clicks){
     state.level=n;
     state.progress=0;
+    drawCoreImg(n);
     if(n===5){
       showLevelOverlay(5,'ЛЕХА КИБЕРТРОН',true);
     } else {
@@ -743,8 +744,6 @@ document.getElementById('cl-level-bar').addEventListener('click',function(){
   if(!n)return;
   if((state.progress||0)>=n.clicks){
     checkLevel();
-    renderUpg();
-    updateUI();
   }
 });
 document.getElementById('cl-level-bar').addEventListener('touchend',function(e){
@@ -753,8 +752,6 @@ document.getElementById('cl-level-bar').addEventListener('touchend',function(e){
   if(!n)return;
   if((state.progress||0)>=n.clicks){
     checkLevel();
-    renderUpg();
-    updateUI();
   }
 },{passive:false});
 

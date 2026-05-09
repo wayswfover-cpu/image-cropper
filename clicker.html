@@ -184,6 +184,18 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
 .rocket-body::after{content:'';position:absolute;left:-8px;top:1px;width:0;height:0;border-top:3px solid transparent;border-bottom:3px solid transparent;border-right:10px solid #ff3300;filter:drop-shadow(0 0 4px #ff3300)}
 .rocket-trail{position:absolute;right:100%;top:50%;transform:translateY(-50%);width:20px;height:3px;background:linear-gradient(90deg,transparent,#ff6600);opacity:.7;border-radius:2px}
 
+/* VICTORY OVERLAY */
+#victory-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.88);backdrop-filter:blur(12px);align-items:center;justify-content:center;flex-direction:column;gap:0}
+#victory-overlay.active{display:flex;animation:victoryBgFade .4s ease}
+@keyframes victoryBgFade{from{opacity:0}to{opacity:1}}
+#victory-content{text-align:center;animation:victoryPop .6s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes victoryPop{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+#victory-img{display:block;width:240px;height:240px;border-radius:16px;border:3px solid var(--yellow);box-shadow:0 0 40px var(--yellow),0 0 80px rgba(255,230,0,.3);margin:0 auto 20px;object-fit:cover}
+#victory-title{font-family:var(--font-head);font-size:3.5rem;font-weight:900;letter-spacing:6px;color:var(--yellow);text-shadow:0 0 40px var(--yellow),0 0 80px rgba(255,230,0,.5);margin-bottom:12px;animation:victoryGlow 1.5s ease infinite}
+@keyframes victoryGlow{0%,100%{text-shadow:0 0 40px var(--yellow),0 0 80px rgba(255,230,0,.5)}50%{text-shadow:0 0 60px var(--yellow),0 0 120px rgba(255,230,0,.8)}}
+#victory-sub{font-family:var(--font-mono);font-size:1.1rem;color:var(--muted);letter-spacing:2px;margin-bottom:28px}
+#victory-label{font-family:var(--font-head);font-size:.65rem;letter-spacing:3px;color:var(--green);border:1px solid var(--green);display:inline-block;padding:3px 14px;border-radius:4px;box-shadow:0 0 10px var(--green);margin-bottom:20px}
+
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
@@ -300,6 +312,16 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
       <button class="btn btn-yellow" id="btn-retry">ПОВТОРИТЬ БОЙ</button>
       <button class="btn btn-magenta" id="btn-back-clicker">ВЕРНУТЬСЯ В КЛИКЕР</button>
     </div>
+  </div>
+</div>
+
+<!-- Victory overlay -->
+<div id="victory-overlay">
+  <div id="victory-content">
+    <img id="victory-img" src="images/Win.jpg" alt="ПОБЕДА"/>
+    <div id="victory-label">ПОБЕДА</div>
+    <div id="victory-title">LEHA CYBERTRON</div>
+    <div id="victory-sub">уничтожен</div>
   </div>
 </div>
 
@@ -981,6 +1003,18 @@ function skillLaser(){
   dealBossDmg(150,true);
 }
 
+function showVictoryScreen(){
+  var ov=document.getElementById('victory-overlay');
+  ov.classList.add('active');
+  var s=new Audio('sounds/Победа.mp3');
+  s.volume=0.6;
+  s.play().catch(function(){});
+  ov.addEventListener('click',function(){
+    ov.classList.remove('active');
+    closeBossScreen(true);
+  }, {once:true});
+}
+
 function endBoss(victory){
   if(!boss)return;
   stopBossMusic();
@@ -996,6 +1030,7 @@ function endBoss(victory){
     document.getElementById('boss-ent').classList.add('boss-dying');
     state.level=6;state.totalClicks=0;state.clicks=0;
     save();
+    setTimeout(showVictoryScreen,900);
   } else {
     t.textContent='ПОРАЖЕНИЕ';t.className='boss-end-title';
     s.textContent='ЛЕХА КИБЕРТРОН оказался сильнее...';

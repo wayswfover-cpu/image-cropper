@@ -291,7 +291,7 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
     <div class="boss-hud-section">
       <div class="boss-hud-label">ТВОЕ ХП</div>
       <div class="boss-hp-bar"><div id="player-hp-fill" style="width:100%"></div></div>
-      <div class="boss-hud-val"><span id="player-hp-text">200</span> / 200</div>
+      <div class="boss-hud-val"><span id="player-hp-text">100</span> / 100</div>
     </div>
     <div class="boss-hud-center">
       <div id="boss-announce" style="font-family:var(--font-head);font-size:.8rem;letter-spacing:4px;color:var(--magenta);text-shadow:0 0 20px var(--magenta);animation:announcePulse 1.5s ease infinite">Сражения нет</div>
@@ -793,7 +793,7 @@ function initBossFight(){
     phase:1,
     alive:true,dying:false,
     totalDmg:0,hits:0,
-    playerHp:200,playerMaxHp:200,
+    playerHp:100,playerMaxHp:100,
     playerX:0,playerY:0,
     invincible:false,invTimer:0,
     shieldActive:false,shieldTimer:0,
@@ -812,7 +812,7 @@ function initBossFight(){
   document.getElementById('boss-hp-text').textContent='1500';
   document.getElementById('boss-hp-max').textContent='1500';
   document.getElementById('player-hp-fill').style.width='100%';
-  document.getElementById('player-hp-text').textContent='200';
+  document.getElementById('player-hp-text').textContent='100';
   document.getElementById('end-dmg').textContent='0';
   document.getElementById('boss-hits').textContent='0';
   document.getElementById('boss-ent').style.display='block';
@@ -953,12 +953,12 @@ function moveRockets(dt){
 
 function checkBossHits(){
   if(!boss||!boss.alive)return;
+  var dmg=10;
   document.querySelectorAll('.boss-proj').forEach(function(el){
     var px=parseFloat(el.style.left),py=parseFloat(el.style.top);
     var dx=px-boss.playerX,dy=py-boss.playerY;
     if(Math.sqrt(dx*dx+dy*dy)<22){
       if(!boss.invincible&&!boss.shieldActive){
-        var dmg=10;
         boss.playerHp=Math.max(0,boss.playerHp-dmg);
         boss.hits++;
         boss.invincible=true;boss.invTimer=1500;

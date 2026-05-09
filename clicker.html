@@ -338,6 +338,7 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
         <div class="cl-stat"><div class="cl-stat-val" id="cl-total">0</div><div class="cl-stat-key">КЛИКОВ ВСЕГО</div></div>
         <div class="cl-stat"><div class="cl-stat-val" id="cl-cps">0</div><div class="cl-stat-key">В СЕКУНДУ</div></div>
         <div class="cl-stat"><div class="cl-stat-val" id="cl-cpc">1</div><div class="cl-stat-key">ЗА КЛИК</div></div>
+        <div class="cl-stat"><div class="cl-stat-val" id="cl-spendable">0</div><div class="cl-stat-key">ОЧКИ</div></div>
       </div>
     </div>
 
@@ -374,20 +375,20 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
 /* ========== DATA ========== */
 var LEVELS=[
   {level:1,name:'САШКА',clicks:0,cpc:1},
-  {level:2,name:'КИРИЛЛ',clicks:50,cpc:2},
-  {level:3,name:'СТАСИК-ПИДОРАСИК',clicks:200,cpc:5},
-  {level:4,name:'АНДРЕЙ РИМСКИЙ',clicks:800,cpc:12},
-  {level:5,name:'ЛЕХА КИБЕРТРОН',clicks:2000,cpc:50},
+  {level:2,name:'КИРИЛЛ',clicks:5000,cpc:2},
+  {level:3,name:'СТАСИК-ПИДОРАСИК',clicks:10000,cpc:5},
+  {level:4,name:'АНДРЕЙ РИМСКИЙ',clicks:20000,cpc:12},
+  {level:5,name:'ЛЕХА КИБЕРТРОН',clicks:40000,cpc:50},
 ];
 var UPG=[
-  {id:'clickPower',name:'СИЛА КЛИКА',baseCost:15,costMult:1.6,effectDesc:'+1 за клик',max:99},
-  {id:'autoClick',name:'АВТОКЛИКЕР',baseCost:50,costMult:1.8,effectDesc:'+1 в сек',max:50},
-  {id:'crit',name:'КРИТ. УДАР',baseCost:200,costMult:2.2,effectDesc:'x2 шанс 10%',max:20},
-  {id:'multi',name:'МУЛЬТИКЛИК',baseCost:1000,costMult:2.5,effectDesc:'+2 за клик',max:20},
+  {id:'clickPower',name:'СИЛА КЛИКА',baseCost:200,costMult:1.6,effectDesc:'+1 за клик',max:99},
+  {id:'autoClick',name:'АВТОКЛИКЕР',baseCost:500,costMult:1.8,effectDesc:'+1 в сек',max:50},
+  {id:'crit',name:'КРИТ. УДАР',baseCost:2000,costMult:2.2,effectDesc:'x2 шанс 10%',max:20},
+  {id:'multi',name:'МУЛЬТИКЛИК',baseCost:10000,costMult:2.5,effectDesc:'+2 за клик',max:20},
 ];
 
 /* ========== STATE ========== */
-var state={level:1,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};
+var state={level:1,totalClicks:0,clicks:0,clickPower:0,autoClick:0,crit:0,multi:0};
 
 /* ========== SOUND ========== */
 var lastClickSoundTime=0;
@@ -409,6 +410,7 @@ function load(){
     if(!s)return;
     state.level=s.level||1;
     state.totalClicks=s.totalClicks||0;
+    state.clicks=s.clicks||0;
     state.clickPower=s.clickPower||0;
     state.autoClick=s.autoClick||0;
     state.crit=s.crit||0;
@@ -428,18 +430,13 @@ function doClick(){
   var cpc=getCPC();
   var crit=(state.crit>0)&&(Math.random()<state.crit*0.1);
   var g=crit?cpc*2:cpc;
-  state.clickPower=(state.clickPower||0);
-  state.multi=(state.multi||0);
-  state.crit=(state.crit||0);
-  state.autoClick=(state.autoClick||0);
-  state.clicks=(state.clicks||0)+g;
+  state.clicks+=g;
   state.totalClicks+=g;
   spawnParticle('+'+g+(crit?' CRIT':''));
   playClickSound();
   checkLevel();
   updateUI();
 }
-state.clicks=0;
 
 function spawnParticle(text){
   var el=document.createElement('div');
@@ -489,7 +486,7 @@ function showLevelOverlay(n,name,isBoss){
 function autoTick(){
   var s=getCPS();
   if(s<=0)return;
-  state.clicks=(state.clicks||0)+s;
+  state.clicks+=s;
   state.totalClicks+=s;
   checkLevel();
   updateUI();
@@ -552,6 +549,10 @@ function updateUI(){
   document.getElementById('cl-auto-count').textContent='Активных: '+ac;
   document.getElementById('cl-auto-details').textContent=ac>0?'+'+ac+' клик/сек':'Нет автокликеров';
 
+  // Spendable points display
+  var spEl=document.getElementById('cl-spendable');
+  if(spEl) spEl.textContent=fmt(state.clicks||0);
+
   // Level upgrade button
   var n=LEVELS[state.level];
   var btnL=document.getElementById('cl-btn-level');
@@ -579,10 +580,7 @@ function drawCoreImg(lvl){
 /* ========== INIT ========== */
 function init(){
   load();
-  if(state.level===5){
-    state.level=1;state.totalClicks=0;state.clicks=0;
-    save();
-  }
+  state.level=Math.min(state.level,5);
   drawCoreImg(state.level);
   renderUpg();
   updateUI();
@@ -601,7 +599,7 @@ document.getElementById('cl-core').addEventListener('touchstart',function(e){
 document.getElementById('cl-btn-level').addEventListener('click',function(){checkLevel();updateUI()});
 document.getElementById('cl-btn-reset').addEventListener('click',function(){
   if(!confirm('Сбросить весь прогресс кликера?'))return;
-  state={level:1,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0,clicks:0};
+  state={level:1,totalClicks:0,clicks:0,clickPower:0,autoClick:0,crit:0,multi:0};
   localStorage.removeItem('cl_state_v2');
   drawCoreImg(1);renderUpg();updateUI();
 });

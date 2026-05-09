@@ -399,10 +399,10 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
 // Level thresholds: 1->2=5000, 2->3=10000, 3->4=20000, 4->5=40000
 var LEVELS=[
   {level:1,name:'САШКА',clicks:0,cpc:1},
-  {level:2,name:'КИРИЛЛ',clicks:1000,cpc:2},
-  {level:3,name:'СТАСИК-ПИДОРАСИК',clicks:2000,cpc:5},
-  {level:4,name:'АНДРЕЙ РИМСКИЙ',clicks:3000,cpc:12},
-  {level:5,name:'ЛЕХА КИБЕРТРОН',clicks:4000,cpc:50},
+  {level:2,name:'КИРИЛЛ',clicks:200,cpc:2},
+  {level:3,name:'СТАСИК-ПИДОРАСИК',clicks:600,cpc:5},
+  {level:4,name:'АНДРЕЙ РИМСКИЙ',clicks:1200,cpc:12},
+  {level:5,name:'ЛЕХА КИБЕРТРОН',clicks:2000,cpc:50},
 ];
 var UPG=[
   {id:'clickPower',name:'СИЛА КЛИКА',baseCost:50,costMult:1.5,effectDesc:'+1 за клик',max:99},
@@ -582,12 +582,11 @@ function updateUI(){
   document.getElementById('cl-level').textContent=state.level;
   document.getElementById('cl-core-name').textContent=l.name;
   document.getElementById('cl-level-tag').textContent='LVL '+state.level;
-  var prev=i>0?LEVELS[i-1].clicks:0;
-  var need=l.clicks-prev;
-  var have=Math.max(0,(state.progress||0)-prev);
+  var need=l.clicks;
+  var have=Math.min((state.progress||0),need);
   var pct=Math.min(100,(have/need)*100);
   document.getElementById('cl-progress-fill').style.width=pct+'%';
-  document.getElementById('cl-progress-text').textContent=fmt(have)+' / '+fmt(need);
+  document.getElementById('cl-progress-text').textContent=have+' / '+need;
   document.getElementById('cl-total').textContent=fmt(state.totalClicks);
   document.getElementById('cl-cps').textContent=fmt(getCPS());
   document.getElementById('cl-cpc').textContent=fmt(getCPC());

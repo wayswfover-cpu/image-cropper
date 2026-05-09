@@ -412,7 +412,7 @@ var UPG=[
 ];
 
 /* ========== STATE ========== */
-var state={level:1,totalClicks:0,spendable:0,clickPower:0,autoClick:0,crit:0,multi:0};
+var state={level:1,totalClicks:0,spendable:0,progress:0,clickPower:0,autoClick:0,crit:0,multi:0};
 
 /* ========== SOUND ========== */
 var lastClickSoundTime=0;
@@ -440,6 +440,7 @@ function load(){
     state.level=s.level||1;
     state.totalClicks=s.totalClicks||0;
     state.spendable=s.spendable||s.clicks||0;
+    state.progress=s.progress||0;
     state.clickPower=s.clickPower||0;
     state.autoClick=s.autoClick||0;
     state.crit=s.crit||0;
@@ -460,6 +461,7 @@ function doClick(){
   var crit=(state.crit>0)&&(Math.random()<state.crit*0.1);
   var g=crit?cpc*2:cpc;
   state.spendable=(state.spendable||0)+g;
+  state.progress=(state.progress||0)+g;
   state.totalClicks+=g;
   spawnParticle('+'+g+(crit?' CRIT':''));
   playClickSound();
@@ -482,8 +484,9 @@ function spawnParticle(text){
 function checkLevel(){
   var n=state.level+1;
   if(n>LEVELS.length)return;
-  if(state.totalClicks>=LEVELS[n-1].clicks){
+  if((state.progress||0)>=LEVELS[n-1].clicks){
     state.level=n;
+    state.progress=0;
     if(n===5){
       showLevelOverlay(5,'ЛЕХА КИБЕРТРОН',true);
     } else {
@@ -518,6 +521,7 @@ function autoTick(){
   var s=getCPS();
   if(s<=0)return;
   state.spendable=(state.spendable||0)+s;
+  state.progress=(state.progress||0)+s;
   state.totalClicks+=s;
   checkLevel();
   renderUpg();
@@ -580,7 +584,7 @@ function updateUI(){
   document.getElementById('cl-level-tag').textContent='LVL '+state.level;
   var prev=i>0?LEVELS[i-1].clicks:0;
   var need=l.clicks-prev;
-  var have=state.spendable||0;
+  var have=Math.max(0,(state.progress||0)-prev);
   var pct=Math.min(100,(have/need)*100);
   document.getElementById('cl-progress-fill').style.width=pct+'%';
   document.getElementById('cl-progress-text').textContent=fmt(have)+' / '+fmt(need);
@@ -601,7 +605,7 @@ function updateUI(){
     document.getElementById('cl-upg-level-name').textContent='СЛЕДУЮЩИЙ УРОВЕНЬ';
     document.getElementById('cl-upg-level-desc').textContent=l.name+' -> '+n.name;
     document.getElementById('cl-upg-level-cost').textContent=fmt(n.clicks);
-    btnL.disabled=(state.spendable||0)<n.clicks;
+    btnL.disabled=(state.progress||0)<n.clicks;
   } else {
     document.getElementById('cl-upg-level-name').textContent='МАКСИМУМ ДОСТИГНУТ';
     document.getElementById('cl-upg-level-desc').textContent='Все уровни пройдены!';
@@ -623,6 +627,7 @@ function init(){
   state.level=Math.min(state.level,5);
   state.totalClicks=state.totalClicks||0;
   state.spendable=state.spendable||0;
+  state.progress=state.progress||0;
   drawCoreImg(state.level);
   renderUpg();
   updateUI();
@@ -641,7 +646,7 @@ document.getElementById('cl-core').addEventListener('touchstart',function(e){
 document.getElementById('cl-btn-level').addEventListener('click',function(){checkLevel();updateUI()});
 document.getElementById('cl-btn-reset').addEventListener('click',function(){
   if(!confirm('Сбросить весь прогресс кликера?'))return;
-  state={level:1,totalClicks:0,spendable:0,clickPower:0,autoClick:0,crit:0,multi:0};
+  state={level:1,totalClicks:0,spendable:0,progress:0,clickPower:0,autoClick:0,crit:0,multi:0};
   localStorage.removeItem('cl_state_v2');
   drawCoreImg(1);renderUpg();updateUI();
 });
@@ -1042,7 +1047,7 @@ function endBoss(victory){
     t.textContent='ПОБЕДА';t.className='boss-end-title victory';
     s.textContent='ЛЕХА КИБЕРТРОН уничтожен!';
     document.getElementById('boss-ent').classList.add('boss-dying');
-    state.level=6;state.totalClicks=0;state.spendable=0;
+    state.level=6;state.totalClicks=0;state.spendable=0;state.progress=0;
     save();
     setTimeout(showVictoryScreen,900);
   } else {

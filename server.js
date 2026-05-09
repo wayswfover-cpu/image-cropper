@@ -110,6 +110,52 @@ function parseCodes(html) {
   return codes;
 }
 
+// ── /api/booru ────────────────────────────────────────
+app.get('/api/booru', async (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Content-Type', 'application/json');
+  const pid = parseInt(req.query.pid) || 0;
+  const limit = Math.min(parseInt(req.query.limit) || 20, 40);
+  try {
+    const url = `https://yande.re/post/index.xml?limit=${limit}&pid=${pid}`;
+    const resp = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CYBERHUB/1.0)' },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!resp.ok) throw new Error(' upstream ' + resp.status);
+    const xml = await resp.text();
+    const posts = [];
+    const re = /<post\s([^>]+)>/gi;
+    let m;
+    while ((m = re.exec(xml)) !== null) {
+      const attrs = m[1];
+      const get = (k) => {
+        const r = new RegExp(k + '="([^"]*)"', 'i').exec(attrs);
+        return r ? r[1] : '';
+      };
+      const id = parseInt(get('id'));
+      if (!id) continue;
+      posts.push({
+        id,
+        tags: get('tags'),
+        fileUrl: get('file_url'),
+        previewUrl: get('preview_url'),
+        sampleUrl: get('sample_url'),
+        jpegUrl: get('jpeg_url'),
+        score: parseInt(get('score')) || 0,
+        rating: get('rating') || 'q',
+        author: get('author'),
+        width: parseInt(get('width')) || 0,
+        height: parseInt(get('height')) || 0,
+        ext: get('file_ext'),
+      });
+    }
+    res.json({ posts, pid, limit });
+  } catch (e) {
+    res.status(502).json({ error: 'Booru fetch failed', detail: e.message, posts: [] });
+  }
+});
+
 // ── /api/codes ─────────────────────────────────────────
 // Special strict limiter for code refresh
 app.get('/api/codes', refreshLimiter, async (req, res) => {

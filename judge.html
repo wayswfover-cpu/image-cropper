@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<title>CYBER//HUB — ДЖАДЖ ФРАЗЫ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050509;--s1:#0a0a18;--s2:#0f0f22;--s3:#14142e;--border:#1c1c40;
+  --cyan:#00e5ff;--magenta:#ff0090;--yellow:#ffe600;--green:#00ff9f;
+  --text:#c0d8f0;--muted:#3a4a6a;
+  --font-head:'Orbitron',monospace;--font-mono:'Share Tech Mono',monospace;
+  --glow-c:0 0 8px var(--cyan),0 0 20px rgba(0,229,255,.3);
+  --glow-m:0 0 8px var(--magenta),0 0 20px rgba(255,0,144,.3);
+  --glow-y:0 0 8px var(--yellow),0 0 20px rgba(255,230,0,.3);
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-mono);background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;position:relative;padding-bottom:env(safe-area-inset-bottom);-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:40px 40px}
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px)}
+.corner{position:fixed;width:60px;height:60px;pointer-events:none;z-index:2}
+.corner-tl{top:12px;left:12px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);box-shadow:var(--glow-c)}
+.corner-tr{top:12px;right:12px;border-top:2px solid var(--magenta);border-right:2px solid var(--magenta);box-shadow:var(--glow-m)}
+.corner-bl{bottom:12px;left:12px;border-bottom:2px solid var(--magenta);border-left:2px solid var(--magenta);box-shadow:var(--glow-m)}
+.corner-br{bottom:12px;right:12px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);box-shadow:var(--glow-c)}
+
+#page{position:relative;z-index:3;max-width:960px;margin:0 auto;padding:24px 16px 80px;padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+
+header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-bottom:1px solid var(--border);margin-bottom:28px}
+.back-btn{font-family:var(--font-head);font-size:.65rem;letter-spacing:2px;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:8px 16px;border-radius:4px;transition:all .2s;flex-shrink:0}
+.back-btn:hover{color:var(--cyan);border-color:var(--cyan);box-shadow:var(--glow-c)}
+.header-title{font-family:var(--font-head);font-size:clamp(1.2rem,4vw,2rem);font-weight:700;color:var(--magenta);text-shadow:0 0 20px var(--magenta);letter-spacing:3px;flex:1;text-align:center}
+.header-right{flex-shrink:0;width:80px}
+
+.page-desc{font-size:.82rem;color:var(--muted);letter-spacing:1px;margin-bottom:24px;text-align:center;padding:0 16px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:16px;position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.card:hover{border-color:var(--magenta);box-shadow:var(--glow-m)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--magenta),transparent);opacity:.6}
+.card-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid var(--border);display:block;margin-bottom:12px;background:var(--s2)}
+.card-title{font-family:var(--font-head);font-size:.7rem;letter-spacing:2px;color:var(--magenta);margin-bottom:12px;text-align:center}
+
+.btn{font-family:var(--font-head);font-size:.72rem;font-weight:600;letter-spacing:1.5px;padding:10px 18px;border:none;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;position:relative;overflow:hidden;width:100%;text-align:center;-webkit-tap-highlight-color:transparent}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,.08) 50%,transparent 60%);transform:translateX(-100%);transition:transform .4s}
+.btn:hover::before{transform:translateX(100%)}
+.btn:active{transform:scale(.96)}
+.btn-magenta{background:transparent;color:var(--magenta);border:1px solid var(--magenta);box-shadow:var(--glow-m)}
+.btn-magenta:not(:disabled):hover{background:rgba(255,0,144,.1)}
+.btn-magenta.playing{background:rgba(255,0,144,.2);border-color:var(--magenta);box-shadow:var(--glow-m);animation:pulseBtn 1s ease infinite}
+@keyframes pulseBtn{0%,100%{box-shadow:var(--glow-m)}50%{box-shadow:0 0 20px var(--magenta),0 0 40px rgba(255,0,144,.5)}}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-sm{padding:8px 14px;font-size:.65rem}
+
+.all-sounds{padding:20px;background:var(--s1);border:1px solid var(--border);border-radius:8px;margin-top:28px}
+.all-sounds-title{font-family:var(--font-head);font-size:.78rem;letter-spacing:3px;color:var(--magenta);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.all-sounds-title::before{content:'//';color:var(--cyan);opacity:.7}
+.sounds-grid{display:flex;flex-wrap:wrap;gap:10px}
+.sound-btn{font-family:var(--font-head);font-size:.68rem;letter-spacing:1.5px;color:var(--magenta);border:1px solid var(--magenta);background:transparent;padding:8px 16px;border-radius:4px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.sound-btn:hover{background:rgba(255,0,144,.1);box-shadow:var(--glow-m)}
+.sound-btn:active{transform:scale(.95)}
+.sound-btn.playing{background:rgba(255,0,144,.2);animation:pulseBtn .8s ease infinite}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+@media(max-width:480px){
+  .corner{display:none}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+  .card{padding:10px}
+  .btn{font-size:.6rem;padding:8px 10px}
+  header{padding:12px 0 16px!important;margin-bottom:16px!important}
+  .header-title{font-size:1rem!important}
+  .back-btn{padding:6px 10px!important;font-size:.55rem!important}
+  #page{padding:12px 8px 60px!important}
+  .sound-btn{font-size:.6rem;padding:7px 10px}
+}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<div id="page">
+  <header>
+    <a class="back-btn" href="index.html">← HUD</a>
+    <div class="header-title">ДЖАДЖ ФРАЗЫ</div>
+    <div class="header-right"></div>
+  </header>
+
+  <p class="page-desc">// НАЖМИ НА КАРТИНКУ ЧТОБЫ УСЛЫШАТЬ ФРАЗУ ДЖАДЖА //</p>
+
+  <div class="grid">
+
+    <div class="card">
+      <img class="card-img" src="pudge/Пудж1jpg.jpg" alt="Пудж 1" loading="lazy"/>
+      <button class="btn btn-magenta" data-sound="sounds_pudge/Свежее мясо.mp3">Свежее мясо</button>
+    </div>
+
+    <div class="card">
+      <img class="card-img" src="pudge/Пудж2.jpg" alt="Пудж 2" loading="lazy"/>
+      <button class="btn btn-magenta" data-sound="sounds_pudge/СЮЮЮДААА.mp3">СЮЮЮДААА</button>
+    </div>
+
+    <div class="card">
+      <img class="card-img" src="pudge/Пудж3.jpg" alt="Пудж 3" loading="lazy"/>
+      <button class="btn btn-magenta" data-sound="sounds_pudge/БЭЭААА.mp3">БЭЭААА</button>
+    </div>
+
+    <div class="card">
+      <img class="card-img" src="pudge/Пудж5.jpg" alt="Пудж 5" loading="lazy"/>
+      <button class="btn btn-magenta" data-sound="sounds_pudge/Джадж смех.mp3">Джадж смех</button>
+    </div>
+
+    <div class="card">
+      <img class="card-img" src="pudge/Пудж6.jpg" alt="Пудж 6" loading="lazy"/>
+      <button class="btn btn-magenta" data-sound="sounds_pudge/ШМАКОДЯВКА.mp3">ШМАКОДЯВКА</button>
+    </div>
+
+    <div class="card">
+      <img class="card-img" src="pudge/Пудж7.jpg" alt="Пудж 7" loading="lazy"/>
+      <button class="btn btn-magenta" data-sound="sounds_pudge/ПАДЖ ЗАЖДАЛСЯ.mp3">ПАДЖ ЗАЖДАЛСЯ</button>
+    </div>
+
+  </div>
+
+  <div class="all-sounds">
+    <div class="all-sounds-title">ВСЕ ФРАЗЫ</div>
+    <div class="sounds-grid">
+      <button class="sound-btn" data-sound="sounds_pudge/Свежее мясо.mp3">Свежее мясо</button>
+      <button class="sound-btn" data-sound="sounds_pudge/СЮЮЮДААА.mp3">СЮЮЮДААА</button>
+      <button class="sound-btn" data-sound="sounds_pudge/БЭЭААА.mp3">БЭЭААА</button>
+      <button class="sound-btn" data-sound="sounds_pudge/Джадж смех.mp3">Джадж смех</button>
+      <button class="sound-btn" data-sound="sounds_pudge/ШМАКОДЯВКА.mp3">ШМАКОДЯВКА</button>
+      <button class="sound-btn" data-sound="sounds_pudge/ПАДЖ ЗАЖДАЛСЯ.mp3">ПАДЖ ЗАЖДАЛСЯ</button>
+      <button class="sound-btn" data-sound="sounds_pudge/Поражение.mp3">Поражение</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var activeBtn=null;
+  var activeAudio=null;
+
+  function stopAll(){
+    document.querySelectorAll('.btn-magenta,.sound-btn').forEach(function(b){
+      b.classList.remove('playing');
+    });
+    if(activeAudio){
+      activeAudio.pause();
+      activeAudio.currentTime=0;
+      activeAudio=null;
+    }
+  }
+
+  function playSound(btn,soundPath){
+    stopAll();
+    btn.classList.add('playing');
+    activeBtn=btn;
+    activeAudio=new Audio(soundPath);
+    activeAudio.volume=0.7;
+    activeAudio.play().catch(function(){});
+    activeAudio.onended=function(){
+      btn.classList.remove('playing');
+      activeAudio=null;
+      activeBtn=null;
+    };
+  }
+
+  document.querySelectorAll('.btn-magenta,.sound-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var sound=btn.dataset.sound;
+      if(activeBtn===btn&&activeAudio){
+        stopAll();
+      } else {
+        playSound(btn,sound);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

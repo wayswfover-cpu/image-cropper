@@ -26,11 +26,22 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .corner{position:fixed;width:60px;height:60px;pointer-events:none;z-index:2}
 @media(max-width:480px){
   .corner{display:none}
-  .clicker-layout{grid-template-columns:1fr!important;gap:12px!important}
+  .clicker-layout{grid-template-columns:1fr!important;gap:12px!important;padding:12px!important}
   .clicker-right{margin-top:0!important}
-  .clicker-core{width:140px!important;height:140px!important}
-  .clicker-core-ring{width:140px!important;height:140px!important}
-  .cl-ring2{width:170px!important;height:170px!important}
+  .clicker-core-wrap{width:160px!important;height:160px!important}
+  .clicker-core{width:130px!important;height:130px!important}
+  .clicker-core-ring{width:130px!important;height:130px!important}
+  .cl-ring2{width:160px!important;height:160px!important}
+  .clicker-level-bar{padding:10px 12px!important;font-size:.85rem}
+  .cl-badge{font-size:.55rem!important;padding:2px 6px!important}
+  .cl-core-name{font-size:.6rem!important}
+  header{padding:12px 0 16px!important;margin-bottom:16px!important}
+  .header-title{font-size:1rem!important}
+  .back-btn{padding:6px 10px!important;font-size:.55rem!important}
+  #page{padding:12px 8px 60px!important}
+  .card{padding:14px!important}
+  .cl-stat-val{font-size:1rem!important}
+  .cl-stat-key{font-size:.55rem!important}
 }
 .corner-tl{top:12px;left:12px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);box-shadow:var(--glow-c)}
 .corner-tr{top:12px;right:12px;border-top:2px solid var(--magenta);border-right:2px solid var(--magenta);box-shadow:var(--glow-m)}
@@ -57,6 +68,9 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
 .cl-progress-track{flex:1;height:6px;background:var(--s2);border-radius:3px;overflow:hidden;cursor:pointer}
 .cl-progress-text{font-size:.7rem;color:var(--muted);white-space:nowrap;letter-spacing:1px;cursor:pointer}
 #cl-level-bar:active{opacity:.8}
+@media(max-width:480px){
+  #cl-btn-boss{font-size:.7rem!important;padding:14px!important;letter-spacing:2px!important}
+}
 
 .clicker-core-wrap{position:relative;width:180px;height:180px;display:flex;align-items:center;justify-content:center;flex-direction:column}
 @media(max-width:480px){
@@ -268,7 +282,7 @@ header{display:flex;align-items:center;gap:16px;padding-bottom:24px;border-botto
     <div class="cl-level-pop-number" id="ol-number">2</div>
     <div class="cl-level-pop-name" id="ol-name">КИРИЛЛ</div>
   </div>
-  <div class="cl-level-ok">[ нажмите ENTER или SPACE, чтобы продолжить ]</div>
+  <div class="cl-level-ok">[ нажмите чтобы продолжить ]</div>
 </div>
 
 <!-- Boss fight screen -->
@@ -560,18 +574,28 @@ function showLevelOverlay(n,name,isBoss){
   document.getElementById('ol-name').textContent=name;
   ov.classList.add('open');
   playLevelUpSound();
-  var handler=function(e){
-    if(e.key==='Enter'||e.key===' '){
-      e.preventDefault();
-      ov.classList.remove('open');
-      document.removeEventListener('keydown',handler);
-      if(isBoss){
-        save();
-        openBossScreen();
-      }
+  var proceed=function(){
+    ov.classList.remove('open');
+    if(isBoss){
+      save();
+      openBossScreen();
     }
   };
-  document.addEventListener('keydown',handler);
+  var keyHandler=function(e){
+    if(e.key==='Enter'||e.key===' '){
+      e.preventDefault();
+      proceed();
+    }
+    document.removeEventListener('keydown',keyHandler);
+  };
+  var tapHandler=function(){
+    proceed();
+    ov.removeEventListener('click',tapHandler);
+    ov.removeEventListener('touchend',tapHandler);
+  };
+  document.addEventListener('keydown',keyHandler);
+  ov.addEventListener('click',tapHandler);
+  ov.addEventListener('touchend',tapHandler);
 }
 
 function autoTick(){

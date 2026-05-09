@@ -71,6 +71,7 @@ app.get('/api/codes', async (req, res) => {
 
     let codes  = [];
     let source = 'fallback';
+    let live   = false;
 
     for (const url of SOURCES) {
       try {
@@ -88,6 +89,7 @@ app.get('/api/codes', async (req, res) => {
         if (parsed.length >= 3) {
           codes  = parsed;
           source = url;
+          live   = true;
           break;
         }
       } catch (_) { /* try next source */ }
@@ -95,10 +97,11 @@ app.get('/api/codes', async (req, res) => {
 
     if (codes.length === 0) {
       codes  = FALLBACK_CODES;
-      source = 'fallback';
+      source = 'eurogamer.net (fallback)';
+      live   = false;
     }
 
-    codesCache = { codes, updatedAt: new Date().toISOString(), source };
+    codesCache = { codes, updatedAt: new Date().toISOString(), source, live };
     cacheTime  = now;
     res.json(codesCache);
   } catch (err) {

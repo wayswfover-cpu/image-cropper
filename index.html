@@ -903,8 +903,8 @@ async function loadCodes(force=false){
   codesError.style.display='none';
   codesGrid.style.display='none';
   try{
-    const res=await fetch('/api/codes');
-    if(!res.ok)throw new Error('HTTP '+res.status);
+    const res=await fetch('/api/codes', { cache: 'no-cache' });
+    if(!res.ok) throw new Error('HTTP '+res.status+' — попробуйте обновить через минуту');
     const data=await res.json();
     renderCodes(data);
     codesLoaded=true;
@@ -914,7 +914,11 @@ async function loadCodes(force=false){
   }catch(e){
     codesLoading.style.display='none';
     codesError.style.display='block';
-    codesError.textContent='[ ERROR ] Не удалось загрузить коды: '+e.message;
+    codesError.innerHTML='[ КОДЫ НЕ ЗАГРУЖЕНЫ ]<br><br>Возможные причины:<br>' +
+      '· Сервер Railway ещё разворачивается<br>' +
+      '· Нет соединения с интернетом<br>' +
+      '· Eurogamer.net заблокирован в вашей сети<br><br>' +
+      '<button class="btn btn-cyan btn-sm" onclick="location.reload()" style="margin-top:8px">↻ ПЕРЕЗАГРУЗИТЬ СТРАНИЦУ</button>';
   }
 }
 

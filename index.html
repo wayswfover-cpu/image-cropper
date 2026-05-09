@@ -655,7 +655,7 @@ function loadImage(file){
 
 function canvasCoord(e){
   var r=canvas.getBoundingClientRect();
-  return{x:Math.round((e.clientX-r.left)*(canvas.width/r.width)*scale,y:Math.round((e.clientY-r.top)*(canvas.height/r.height)*scale};
+  return{x:Math.round((e.clientX-r.left)*(canvas.width/r.width)*scale),y:Math.round((e.clientY-r.top)*(canvas.height/r.height)*scale)};
 }
 
 function drawCrop(){
@@ -690,7 +690,7 @@ canvas.addEventListener('mousedown',function(e){if(!img)return;dragging=true;dra
 canvas.addEventListener('mousemove',function(e){
   if(!dragging)return;
   var c=canvasCoord(e);
-  sel={x:Math.max(0,Math.min(dragStart.x,c.x),y:Math.max(0,Math.min(dragStart.y,c.y),w:Math.abs(c.x-dragStart.x),h:Math.abs(c.y-dragStart.y)};
+  sel={x:Math.max(0,Math.min(dragStart.x,c.x)),y:Math.max(0,Math.min(dragStart.y,c.y)),w:Math.abs(c.x-dragStart.x),h:Math.abs(c.y-dragStart.y)};
   sel.w=Math.min(sel.w,img.naturalWidth-sel.x);
   sel.h=Math.min(sel.h,img.naturalHeight-sel.y);
   drawCrop();
@@ -823,7 +823,7 @@ btnSpin.addEventListener('click',function(){
   var n=rItems.length,seg=Math.PI*2/n;
   var winnerIdx=Math.floor(Math.random()*n);
   var targetLocalAngle=(-Math.PI/2)-(winnerIdx*seg+seg/2);
-  var fullAngle=rAngle+extraSpins+(targetLocalAngle-(((rAngle)%(Math.PI*2)));
+  var fullAngle=rAngle+extraSpins+(targetLocalAngle-((rAngle)%(Math.PI*2)));
   var duration=4500+Math.random()*1000;
   var startT=performance.now(),startA=rAngle;
   function animate(t){
@@ -835,7 +835,7 @@ btnSpin.addEventListener('click',function(){
     else{
       rAngle=fullAngle;
       rSpinning=false;btnSpin.disabled=false;
-      var norm=(((-rAngle-Math.PI/2)%(Math.PI*2)+Math.PI*4)%(Math.PI*2);
+      var norm=(((-rAngle-Math.PI/2)%(Math.PI*2)+Math.PI*4)%(Math.PI*2));
       var idx=Math.floor(norm/seg)%n;
       winnerName.textContent=rItems[idx]||rItems[winnerIdx];
       winnerDiv.style.display='block';
@@ -859,7 +859,7 @@ function loadCodes(force){
   }).then(function(data){
     codesLoaded=true;loading.style.display='none';grid.style.display='grid';
     var src=data.source||'';
-    document.getElementById('codes-source').textContent='SOURCE: '+(src.indexOf('fallback')>-1?'FALLBACK':src.replace('https://www.','').split('/')[0].toUpperCase();
+    document.getElementById('codes-source').textContent='SOURCE: '+(src.indexOf('fallback')>-1?'FALLBACK':src.replace('https://www.','').split('/')[0].toUpperCase());
     var d=new Date(data.updatedAt);
     document.getElementById('codes-updated').textContent='UPDATED: '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
     grid.innerHTML='';
@@ -958,7 +958,7 @@ function checkLvl(){
 function spawnP(t){
   var el=document.createElement('div');
   el.className='cl-particle';
-  el.style.left='calc(50%+'+((Math.random()-.5)*60+'px)';
+  el.style.left='calc(50% + '+((Math.random()-.5)*60)+'px)';
   el.style.top='45%';
   el.textContent=t;
   document.getElementById('cl-particles').appendChild(el);
@@ -1048,7 +1048,7 @@ function buyUpg(id){
   renderUpg();updUI();
 }
 function saveCS(){
-  try{localStorage.setItem('cl_state',JSON.stringify({level:cl.state.level,totalClicks:cl.state.totalClicks,clickPower:cl.state.clickPower,autoClick:cl.state.autoClick,crit:cl.state.crit,multi:cl.state.multi})}
+  try{localStorage.setItem('cl_state',JSON.stringify({level:cl.state.level,totalClicks:cl.state.totalClicks,clickPower:cl.state.clickPower,autoClick:cl.state.autoClick,crit:cl.state.crit,multi:cl.state.multi}))}
   catch(e){}
 }
 function loadCS(){

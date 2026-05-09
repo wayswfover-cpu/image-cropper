@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Обрезка изображений</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3350;
+      --accent: #6c63ff;
+      --accent2: #a78bfa;
+      --text: #e8eaf6;
+      --muted: #7b82a8;
+      --danger: #f87171;
+      --success: #34d399;
+      --radius: 14px;
+      --shadow: 0 8px 32px rgba(0,0,0,.45);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 64px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+    header p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: .95rem;
+    }
+
+    /* ── Upload zone ── */
+    #upload-zone {
+      width: 100%;
+      max-width: 680px;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 56px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    #upload-zone:hover, #upload-zone.drag-over {
+      border-color: var(--accent);
+      background: var(--surface2);
+    }
+    #upload-zone svg { color: var(--accent); margin-bottom: 12px; }
+    #upload-zone h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 6px; }
+    #upload-zone p  { color: var(--muted); font-size: .88rem; }
+    #file-input { display: none; }
+
+    .btn-upload {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 10px 28px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: .9rem;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn-upload:hover { opacity: .85; }
+
+    /* ── Editor ── */
+    #editor {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 960px;
+      gap: 20px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary  { background: var(--accent);  color: #fff; }
+    .btn-secondary{ background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-success  { background: var(--success);  color: #0f1117; }
+    .btn-danger   { background: var(--danger);   color: #0f1117; }
+    .btn:disabled { opacity: .35; cursor: default; }
+    .btn:not(:disabled):hover { opacity: .85; }
+
+    /* ── Canvas wrapper ── */
+    #canvas-wrap {
+      position: relative;
+      display: inline-block;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      background: #000;
+      cursor: crosshair;
+      user-select: none;
+      max-width: 100%;
+    }
+    #canvas-wrap canvas { display: block; max-width: 100%; }
+
+    /* ── Info bar ── */
+    #info-bar {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+    #info-bar span b { color: var(--text); }
+
+    /* ── Preview modal ── */
+    #preview-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    #preview-modal.open { display: flex; }
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: var(--shadow);
+    }
+    .modal-card h3 { font-size: 1.05rem; }
+    .modal-card img {
+      max-width: 100%;
+      max-height: 60vh;
+      border-radius: 8px;
+      object-fit: contain;
+      background: repeating-conic-gradient(#2e3350 0% 25%, #22263a 0% 50%) 0 0 / 16px 16px;
+    }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+
+    .hint {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: .82rem;
+      color: var(--muted);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .hint svg { flex-shrink: 0; color: var(--accent2); }
+
+    /* Resize handles */
+    .handle {
+      position: absolute;
+      width: 10px; height: 10px;
+      background: #fff;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      z-index: 10;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Обрезка изображений</h1>
+  <p>Загрузите фото, выделите область и скачайте результат</p>
+</header>
+
+<!-- Upload zone -->
+<div id="upload-zone">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="17 8 12 3 7 8"/>
+    <line x1="12" y1="3" x2="12" y2="15"/>
+  </svg>
+  <h2>Перетащите изображение сюда</h2>
+  <p>или нажмите кнопку ниже&nbsp;—&nbsp;поддерживаются PNG, JPG, WEBP, GIF</p>
+  <label class="btn-upload" for="file-input">Выбрать файл</label>
+  <input type="file" id="file-input" accept="image/*" />
+</div>
+
+<!-- Editor -->
+<div id="editor">
+  <div class="hint">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Зажмите и потяните мышью по изображению, чтобы выбрать область обрезки
+  </div>
+
+  <div class="toolbar">
+    <button class="btn btn-primary"    id="btn-crop"     disabled>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 2 6 8 2 8"/><polyline points="18 22 18 16 22 16"/><path d="M2 22 6 18 18 6l4-4"/><path d="M6 18H18V6"/></svg>
+      Обрезать
+    </button>
+    <button class="btn btn-secondary"  id="btn-reset-sel">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      Сбросить выделение
+    </button>
+    <button class="btn btn-secondary"  id="btn-new">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Загрузить другое
+    </button>
+  </div>
+
+  <div id="canvas-wrap">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div id="info-bar">
+    <span>Изображение: <b id="info-orig">—</b></span>
+    <span>Выделение: <b id="info-sel">нет</b></span>
+  </div>
+</div>
+
+<!-- Preview / Download modal -->
+<div id="preview-modal">
+  <div class="modal-card">
+    <h3>Результат обрезки</h3>
+    <img id="preview-img" src="" alt="preview" />
+    <div id="preview-size" style="color:var(--muted);font-size:.82rem;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btn-modal-close">Закрыть</button>
+      <a id="btn-download" class="btn btn-success" download="crop.png">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Скачать PNG
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ── Elements ──────────────────────────────────────────
+  const uploadZone   = document.getElementById('upload-zone');
+  const fileInput    = document.getElementById('file-input');
+  const editor       = document.getElementById('editor');
+  const canvas       = document.getElementById('canvas');
+  const ctx          = canvas.getContext('2d');
+  const btnCrop      = document.getElementById('btn-crop');
+  const btnResetSel  = document.getElementById('btn-reset-sel');
+  const btnNew       = document.getElementById('btn-new');
+  const infoOrig     = document.getElementById('info-orig');
+  const infoSel      = document.getElementById('info-sel');
+  const modal        = document.getElementById('preview-modal');
+  const previewImg   = document.getElementById('preview-img');
+  const previewSize  = document.getElementById('preview-size');
+  const btnDownload  = document.getElementById('btn-download');
+  const btnModalClose= document.getElementById('btn-modal-close');
+
+  // ── State ─────────────────────────────────────────────
+  let img       = null;
+  let scale     = 1;          // canvas display scale vs natural size
+  let sel       = null;       // { x, y, w, h } in NATURAL image coords
+  let dragging  = false;
+  let dragStart = null;       // { x, y } in NATURAL coords
+
+  // ── Helpers ───────────────────────────────────────────
+  const MAX_W = Math.min(window.innerWidth - 64, 900);
+  const MAX_H = window.innerHeight * 0.72;
+
+  function loadImage(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const url = URL.createObjectURL(file);
+    const i = new Image();
+    i.onload = () => {
+      img = i;
+      sel = null;
+
+      // Fit into max dimensions keeping aspect ratio
+      let dw = img.naturalWidth, dh = img.naturalHeight;
+      if (dw > MAX_W) { dh = dh * MAX_W / dw; dw = MAX_W; }
+      if (dh > MAX_H) { dw = dw * MAX_H / dh; dh = MAX_H; }
+      dw = Math.round(dw); dh = Math.round(dh);
+      scale = img.naturalWidth / dw;
+
+      canvas.width  = dw;
+      canvas.height = dh;
+
+      draw();
+      infoOrig.textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
+      infoSel.textContent  = 'нет';
+      btnCrop.disabled = true;
+
+      uploadZone.style.display = 'none';
+      editor.style.display = 'flex';
+      URL.revokeObjectURL(url);
+    };
+    i.src = url;
+  }
+
+  function canvasCoord(e) {
+    const r   = canvas.getBoundingClientRect();
+    const cx  = (e.clientX - r.left)  * (canvas.width  / r.width);
+    const cy  = (e.clientY - r.top)   * (canvas.height / r.height);
+    return { x: Math.round(cx * scale), y: Math.round(cy * scale) };
+  }
+
+  function normalise(x, y, x2, y2) {
+    return {
+      x: Math.max(0, Math.min(x, x2)),
+      y: Math.max(0, Math.min(y, y2)),
+      w: Math.abs(x2 - x),
+      h: Math.abs(y2 - y),
+    };
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    if (!sel || sel.w < 2 || sel.h < 2) return;
+
+    // Darken outside selection
+    ctx.fillStyle = 'rgba(0,0,0,.55)';
+    const sx = sel.x / scale, sy = sel.y / scale;
+    const sw = sel.w / scale, sh = sel.h / scale;
+
+    ctx.fillRect(0,  0,  canvas.width, sy);
+    ctx.fillRect(0,  sy, sx, sh);
+    ctx.fillRect(sx + sw, sy, canvas.width - sx - sw, sh);
+    ctx.fillRect(0,  sy + sh, canvas.width, canvas.height - sy - sh);
+
+    // Selection border
+    ctx.strokeStyle = '#a78bfa';
+    ctx.lineWidth   = 2;
+    ctx.setLineDash([]);
+    ctx.strokeRect(sx, sy, sw, sh);
+
+    // Rule-of-thirds grid
+    ctx.strokeStyle = 'rgba(167,139,250,.35)';
+    ctx.lineWidth   = 1;
+    for (let i = 1; i < 3; i++) {
+      ctx.beginPath(); ctx.moveTo(sx + sw * i/3, sy); ctx.lineTo(sx + sw * i/3, sy + sh); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(sx, sy + sh * i/3); ctx.lineTo(sx + sw, sy + sh * i/3); ctx.stroke();
+    }
+
+    // Corner handles
+    const hs = 7;
+    const corners = [[sx, sy],[sx+sw, sy],[sx, sy+sh],[sx+sw, sy+sh]];
+    ctx.fillStyle = '#fff';
+    corners.forEach(([cx2, cy2]) => {
+      ctx.beginPath();
+      ctx.arc(cx2, cy2, hs/2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = '#a78bfa';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    // Size label
+    const label = `${Math.round(sel.w)} × ${Math.round(sel.h)}`;
+    ctx.font = 'bold 12px Segoe UI, system-ui, sans-serif';
+    ctx.fillStyle = 'rgba(0,0,0,.65)';
+    const tw = ctx.measureText(label).width;
+    ctx.fillRect(sx, sy - 22, tw + 12, 20);
+    ctx.fillStyle = '#e8eaf6';
+    ctx.fillText(label, sx + 6, sy - 7);
+  }
+
+  // ── Mouse events ──────────────────────────────────────
+  canvas.addEventListener('mousedown', e => {
+    if (!img) return;
+    dragging  = true;
+    dragStart = canvasCoord(e);
+    sel       = null;
+    draw();
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const cur = canvasCoord(e);
+    const nx  = Math.min(dragStart.x, cur.x);
+    const ny  = Math.min(dragStart.y, cur.y);
+    const nw  = Math.abs(cur.x - dragStart.x);
+    const nh  = Math.abs(cur.y - dragStart.y);
+    sel = {
+      x: Math.max(0, nx),
+      y: Math.max(0, ny),
+      w: Math.min(nw, img.naturalWidth  - Math.max(0, nx)),
+      h: Math.min(nh, img.naturalHeight - Math.max(0, ny)),
+    };
+    draw();
+    infoSel.textContent = `${Math.round(sel.w)} × ${Math.round(sel.h)} px`;
+    btnCrop.disabled = sel.w < 2 || sel.h < 2;
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    if (!sel || sel.w < 2 || sel.h < 2) {
+      sel = null; draw();
+      infoSel.textContent = 'нет';
+      btnCrop.disabled = true;
+    }
+  });
+
+  // Touch support
+  function touchCoord(e) {
+    const t = e.touches[0] || e.changedTouches[0];
+    return canvasCoord(t);
+  }
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); dragging = true; dragStart = touchCoord(e); sel = null; draw(); }, { passive: false });
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); const cur = touchCoord(e); const nx = Math.min(dragStart.x, cur.x); const ny = Math.min(dragStart.y, cur.y); sel = { x: Math.max(0, nx), y: Math.max(0, ny), w: Math.abs(cur.x - dragStart.x), h: Math.abs(cur.y - dragStart.y) }; draw(); infoSel.textContent = `${Math.round(sel.w)} × ${Math.round(sel.h)} px`; btnCrop.disabled = sel.w < 2 || sel.h < 2; }, { passive: false });
+  canvas.addEventListener('touchend',   e => { e.preventDefault(); dragging = false; if (!sel || sel.w < 2 || sel.h < 2) { sel = null; draw(); infoSel.textContent = 'нет'; btnCrop.disabled = true; } }, { passive: false });
+
+  // ── Crop ──────────────────────────────────────────────
+  btnCrop.addEventListener('click', () => {
+    if (!sel || sel.w < 2 || sel.h < 2) return;
+    const offscreen = document.createElement('canvas');
+    offscreen.width  = Math.round(sel.w);
+    offscreen.height = Math.round(sel.h);
+    const oc = offscreen.getContext('2d');
+    oc.drawImage(img, sel.x, sel.y, sel.w, sel.h, 0, 0, offscreen.width, offscreen.height);
+    const dataUrl = offscreen.toDataURL('image/png');
+    previewImg.src  = dataUrl;
+    previewSize.textContent = `Размер: ${offscreen.width} × ${offscreen.height} px`;
+    btnDownload.href = dataUrl;
+    btnDownload.download = `crop_${offscreen.width}x${offscreen.height}.png`;
+    modal.classList.add('open');
+  });
+
+  btnResetSel.addEventListener('click', () => {
+    sel = null; draw();
+    infoSel.textContent = 'нет';
+    btnCrop.disabled = true;
+  });
+
+  btnNew.addEventListener('click', () => {
+    img = null; sel = null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    editor.style.display = 'none';
+    uploadZone.style.display = '';
+    fileInput.value = '';
+  });
+
+  btnModalClose.addEventListener('click', () => modal.classList.remove('open'));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+  // ── Upload zone ───────────────────────────────────────
+  fileInput.addEventListener('change', e => loadImage(e.target.files[0]));
+
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    loadImage(e.dataTransfer.files[0]);
+  });
+  uploadZone.addEventListener('click', e => {
+    if (e.target.tagName !== 'LABEL' && e.target.tagName !== 'INPUT') fileInput.click();
+  });
+
+  // ── Paste from clipboard ──────────────────────────────
+  document.addEventListener('paste', e => {
+    const item = [...e.clipboardData.items].find(i => i.type.startsWith('image/'));
+    if (item) loadImage(item.getAsFile());
+  });
+})();
+</script>
+</body>
+</html>

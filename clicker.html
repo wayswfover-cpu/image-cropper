@@ -400,6 +400,11 @@ function playClickSound(){
   s.volume=0.5;
   s.play().catch(function(){});
 }
+function playLevelUpSound(){
+  var s=new Audio('sounds/levelup.mp3');
+  s.volume=0.5;
+  s.play().catch(function(){});
+}
 
 function save(){
   try{localStorage.setItem('cl_state_v2',JSON.stringify(state))}catch(e){}
@@ -469,6 +474,7 @@ function showLevelOverlay(n,name,isBoss){
   document.getElementById('ol-number').textContent=n;
   document.getElementById('ol-name').textContent=name;
   ov.classList.add('open');
+  playLevelUpSound();
   var handler=function(e){
     if(e.key==='Enter'||e.key===' '){
       e.preventDefault();

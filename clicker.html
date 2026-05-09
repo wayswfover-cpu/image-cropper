@@ -389,6 +389,14 @@ var UPG=[
 /* ========== STATE ========== */
 var state={level:1,totalClicks:0,clickPower:0,autoClick:0,crit:0,multi:0};
 
+/* ========== SOUND ========== */
+var clickSound=new Audio('sounds/1.mp3');
+clickSound.volume=0.4;
+function playClickSound(){
+  clickSound.currentTime=0;
+  clickSound.play().catch(function(){});
+}
+
 function save(){
   try{localStorage.setItem('cl_state_v2',JSON.stringify(state))}catch(e){}
 }
@@ -424,6 +432,7 @@ function doClick(){
   state.clicks=(state.clicks||0)+g;
   state.totalClicks+=g;
   spawnParticle('+'+g+(crit?' CRIT':''));
+  playClickSound();
   checkLevel();
   updateUI();
 }
